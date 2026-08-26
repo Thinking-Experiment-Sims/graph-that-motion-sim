@@ -1,0 +1,1872 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Graph That Motion - The Thinking Experiment</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+    <style>
+        :root {
+            --primary-teal: #0f7e9b;
+            --primary-teal-dark: #095367;
+            --primary-teal-light: #e6f4f8;
+            --accent-amber: #d67b19;
+            --accent-amber-dark: #b06210;
+            --accent-amber-light: #fdf3e8;
+            --bg-white: #ffffff;
+            --bg-page: #f8fafc;
+            --text-dark: #1e293b;
+            --text-muted: #64748b;
+            --border-color: #cbd5e1;
+            --track-border: #1e293b;
+            --success-green: #10b981;
+            --success-bg: #ecfdf5;
+            --error-red: #ef4444;
+            --error-bg: #fef2f2;
+            --card-shadow: 0 4px 14px rgba(0, 0, 0, 0.07);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-page);
+            color: var(--text-dark);
+            line-height: 1.5;
+            padding-bottom: 3rem;
+        }
+
+        .math-expr {
+            font-family: "Cambria Math", "Times New Roman", serif;
+            font-style: italic;
+        }
+
+        /* Top Navigation & Mode Switcher */
+        header {
+            background-color: var(--primary-teal);
+            color: var(--bg-white);
+            padding: 1rem 1.5rem;
+            box-shadow: var(--card-shadow);
+        }
+
+        .header-content {
+            max-width: 1280px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .header-title h1 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .header-title p {
+            font-size: 0.88rem;
+            opacity: 0.9;
+        }
+
+        .mode-nav {
+            display: flex;
+            gap: 0.4rem;
+            background-color: rgba(255, 255, 255, 0.15);
+            padding: 0.3rem;
+            border-radius: 8px;
+        }
+
+        .mode-btn {
+            background: transparent;
+            color: white;
+            border: none;
+            padding: 0.45rem 0.9rem;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.88rem;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .mode-btn:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .mode-btn.active {
+            background-color: var(--bg-white);
+            color: var(--primary-teal);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+        }
+
+        .main-wrapper {
+            max-width: 1280px;
+            margin: 1.5rem auto;
+            padding: 0 1rem;
+            display: grid;
+            grid-template-columns: 1fr 310px;
+            gap: 1.5rem;
+            align-items: start;
+        }
+
+        @media (max-width: 980px) {
+            .main-wrapper {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background-color: var(--bg-white);
+            border-radius: 10px;
+            padding: 1.4rem;
+            box-shadow: var(--card-shadow);
+            border: 1px solid var(--border-color);
+        }
+
+        /* Direction Indicator */
+        .direction-indicator {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 0.4rem;
+            user-select: none;
+        }
+
+        .direction-indicator span.symbol {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: var(--primary-teal);
+        }
+
+        /* Track Container */
+        .track-box {
+            width: 100%;
+            background: #ffffff;
+            border: 4px solid var(--track-border);
+            border-radius: 4px;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            box-shadow: inset 0 2px 6px rgba(0,0,0,0.06);
+            position: relative;
+        }
+
+        canvas#simCanvas {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        /* Video Controls & Time Scrubber */
+        .playback-toolbar {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 0.75rem;
+            flex-wrap: wrap;
+            background-color: var(--bg-page);
+            padding: 0.6rem 1rem;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .playback-buttons {
+            display: flex;
+            gap: 0.4rem;
+            align-items: center;
+        }
+
+        .btn-ctrl {
+            background-color: var(--accent-amber);
+            color: white;
+            border: none;
+            padding: 0.45rem 0.9rem;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.88rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            transition: background-color 0.15s;
+        }
+
+        .btn-ctrl:hover {
+            background-color: var(--accent-amber-dark);
+        }
+
+        .btn-ctrl.secondary {
+            background-color: #ffffff;
+            color: var(--text-dark);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-ctrl.secondary:hover {
+            background-color: #f1f5f9;
+        }
+
+        .scrubber-group {
+            flex: 1;
+            min-width: 200px;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .scrubber-group label {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            white-space: nowrap;
+        }
+
+        input[type="range"]#timeScrubber {
+            flex: 1;
+            height: 6px;
+            border-radius: 3px;
+            background: #cbd5e1;
+            outline: none;
+            cursor: pointer;
+            accent-color: var(--primary-teal);
+        }
+
+        .time-badge {
+            font-size: 0.85rem;
+            font-weight: 800;
+            color: var(--primary-teal);
+            min-width: 45px;
+            text-align: right;
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* Visual Overlays Toolbar (Vectors & Motion Map) */
+        .overlays-toolbar {
+            display: flex;
+            gap: 1.25rem;
+            margin-top: 0.75rem;
+            padding: 0.5rem 0.25rem;
+            flex-wrap: wrap;
+            font-size: 0.88rem;
+            color: var(--text-dark);
+            align-items: center;
+        }
+
+        .overlay-toggle {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            cursor: pointer;
+            user-select: none;
+            font-weight: 600;
+        }
+
+        .overlay-toggle input[type="checkbox"] {
+            accent-color: var(--primary-teal);
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+
+        /* Matching Area Layout */
+        .matching-zone {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 1.5rem;
+            margin-top: 1.25rem;
+            align-items: start;
+        }
+
+        @media (max-width: 650px) {
+            .matching-zone {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* 3-Column Letter Grid (A to K) */
+        .letters-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 56px);
+            gap: 0.6rem;
+        }
+
+        button.letter-btn {
+            width: 56px;
+            height: 48px;
+            background-color: #ffffff;
+            color: var(--accent-amber);
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 1.25rem;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.15s ease-in-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        button.letter-btn:hover {
+            border-color: var(--accent-amber);
+            background-color: var(--accent-amber-light);
+            transform: scale(1.04);
+        }
+
+        button.letter-btn.active {
+            background-color: var(--accent-amber);
+            color: #ffffff;
+            border-color: var(--accent-amber-dark);
+            box-shadow: 0 3px 8px rgba(214, 123, 25, 0.35);
+        }
+
+        /* Graph Preview Card */
+        .graph-preview-box {
+            background-color: var(--bg-white);
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 290px;
+            position: relative;
+        }
+
+        .displaying-header {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+            font-weight: 700;
+        }
+
+        .selected-letter-badge {
+            background-color: var(--primary-teal);
+            color: white;
+            padding: 0.15rem 0.6rem;
+            border-radius: 4px;
+            font-size: 1.1rem;
+            font-weight: 800;
+        }
+
+        .graph-view-toggles {
+            display: flex;
+            gap: 0.3rem;
+            font-size: 0.78rem;
+        }
+
+        .view-pill {
+            background-color: #f1f5f9;
+            color: var(--text-dark);
+            border: 1px solid var(--border-color);
+            padding: 0.2rem 0.5rem;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .view-pill.active {
+            background-color: var(--primary-teal);
+            color: white;
+            border-color: var(--primary-teal);
+        }
+
+        canvas#graphCanvas {
+            width: 100%;
+            max-width: 340px;
+            height: auto;
+            border-radius: 4px;
+        }
+
+        .empty-preview-prompt {
+            color: var(--text-muted);
+            font-style: italic;
+            font-size: 0.95rem;
+            margin-top: 4.5rem;
+            text-align: center;
+        }
+
+        /* Check Answer & PER Diagnostic Feedback Banner */
+        .check-answer-area {
+            margin-top: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .btn-check {
+            background-color: var(--primary-teal);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 1.05rem;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            box-shadow: 0 3px 8px rgba(15, 126, 155, 0.25);
+        }
+
+        .btn-check:hover:not(:disabled) {
+            background-color: var(--primary-teal-dark);
+            transform: translateY(-1px);
+        }
+
+        .btn-check:disabled {
+            background-color: #94a3b8;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .diagnostic-card {
+            padding: 0.85rem 1.1rem;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            display: none;
+            line-height: 1.5;
+        }
+
+        .diagnostic-card.success {
+            display: block;
+            background-color: var(--success-bg);
+            color: #065f46;
+            border: 1px solid #a7f3d0;
+        }
+
+        .diagnostic-card.error {
+            display: block;
+            background-color: var(--error-bg);
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+
+        .diagnostic-title {
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+
+        /* Right Panel: Task Tracker & Progress */
+        .progress-card {
+            border-top: 4px solid var(--accent-amber);
+        }
+
+        .progress-card h3 {
+            color: var(--accent-amber);
+            font-size: 1.2rem;
+            font-weight: 800;
+            text-align: center;
+            margin-bottom: 1rem;
+            letter-spacing: -0.3px;
+        }
+
+        .levels-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .level-cell {
+            padding: 0.55rem 0.2rem;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            text-align: center;
+            font-weight: 800;
+            font-size: 0.95rem;
+            color: var(--text-dark);
+            cursor: pointer;
+            transition: all 0.15s;
+            background: #ffffff;
+        }
+
+        .level-cell:hover:not(.solved) {
+            border-color: var(--primary-teal);
+            background-color: var(--primary-teal-light);
+        }
+
+        .level-cell.current {
+            border-color: var(--accent-amber);
+            background-color: var(--accent-amber-light);
+            color: var(--accent-amber-dark);
+            box-shadow: 0 0 0 2px var(--accent-amber);
+        }
+
+        .level-cell.solved {
+            background-color: var(--success-bg);
+            border-color: var(--success-green);
+            color: var(--success-green);
+        }
+
+        .progress-meters {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 1.25rem;
+            padding-top: 1.25rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .meter-col {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .meter-label {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        .meter-bar-outer {
+            width: 32px;
+            height: 110px;
+            background-color: #ffffff;
+            border: 2px solid var(--text-dark);
+            border-radius: 3px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+        }
+
+        .meter-bar-fill {
+            width: 100%;
+            transition: height 0.3s ease;
+        }
+
+        .meter-percent {
+            font-weight: 700;
+            font-size: 0.85rem;
+        }
+
+        /* 
+         ===========================================================
+         MODAL / SKETCH PREDICTION MODE STYLES
+         ===========================================================
+        */
+        .tab-view {
+            display: none;
+        }
+
+        .tab-view.active {
+            display: block;
+        }
+
+        .sketch-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        canvas#sketchCanvas {
+            background: #ffffff;
+            border: 2px dashed var(--primary-teal);
+            border-radius: 6px;
+            cursor: crosshair;
+            touch-action: none;
+        }
+
+        .sketch-toolbar {
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        /* 
+         ===========================================================
+         CUSTOM SCENARIO BUILDER STYLES
+         ===========================================================
+        */
+        .builder-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        @media (max-width: 750px) {
+            .builder-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .stage-card {
+            background-color: var(--bg-page);
+            border: 1px solid var(--border-color);
+            border-left: 4px solid var(--primary-teal);
+            border-radius: 6px;
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .stage-card h4 {
+            font-size: 0.95rem;
+            color: var(--primary-teal);
+            margin-bottom: 0.5rem;
+        }
+
+        .form-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+            font-size: 0.88rem;
+        }
+
+        .form-row input, .form-row select {
+            padding: 0.35rem 0.5rem;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            width: 110px;
+            font-size: 0.88rem;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-content">
+            <div class="header-title">
+                <h1>Graph That Motion</h1>
+                <p>Advanced Kinematics & Graph Matching Suite</p>
+            </div>
+            <nav class="mode-nav">
+                <button class="mode-btn active" data-tab="game-tab">🎮 Challenge Mode</button>
+                <button class="mode-btn" data-tab="sketch-tab">✏️ Prediction Sketch</button>
+                <button class="mode-btn" data-tab="builder-tab">🛠️ Scenario Builder</button>
+            </nav>
+        </div>
+    </header>
+
+    <div class="main-wrapper">
+        
+        <!-- Center/Left Column -->
+        <div class="card">
+            
+            <!-- Tab 1: Standard Challenge Mode -->
+            <div id="game-tab" class="tab-view active">
+                <div class="direction-indicator">
+                    <span class="symbol">← &minus;</span>
+                    <span>Direction</span>
+                    <span class="symbol">+ →</span>
+                </div>
+
+                <!-- Simulation Track Canvas -->
+                <div class="track-box">
+                    <canvas id="simCanvas" width="850" height="150"></canvas>
+                </div>
+
+                <!-- Live Playback & Time Scrubber Toolbar -->
+                <div class="playback-toolbar">
+                    <div class="playback-buttons">
+                        <button class="btn-ctrl" id="btnPlayPause">
+                            <span id="playIcon">▶</span> <span id="playText">Play</span>
+                        </button>
+                        <button class="btn-ctrl secondary" id="btnReplay">↺ Replay</button>
+                        <button class="btn-ctrl secondary" id="btnSlowMo">Slow-Mo: OFF</button>
+                    </div>
+                    <div class="scrubber-group">
+                        <label for="timeScrubber">Time (<span class="math-expr">t</span>):</label>
+                        <input type="range" id="timeScrubber" min="0" max="100" value="0" step="0.5">
+                        <span class="time-badge" id="timeDisplay">0.0 s</span>
+                    </div>
+                </div>
+
+                <!-- PER Vector Overlays Toolbar -->
+                <div class="overlays-toolbar">
+                    <label class="overlay-toggle">
+                        <input type="checkbox" id="chkVelocity" checked>
+                        <span>Velocity Vector (<span class="math-expr"><i>v&#x20D7;</i></span>)</span>
+                    </label>
+                    <label class="overlay-toggle">
+                        <input type="checkbox" id="chkAcceleration" checked>
+                        <span>Acceleration (<span class="math-expr"><i>a&#x20D7;</i></span>)</span>
+                    </label>
+                    <label class="overlay-toggle">
+                        <input type="checkbox" id="chkMotionDots" checked>
+                        <span>Motion Map Dots</span>
+                    </label>
+                    <label class="overlay-toggle">
+                        <input type="checkbox" id="chkTracer" checked>
+                        <span>Live Graph Tracer</span>
+                    </label>
+                </div>
+
+                <!-- Matching Interface -->
+                <div class="matching-zone">
+                    <!-- 3-Column Letter Grid (A to K) -->
+                    <div class="letters-grid" id="lettersGrid"></div>
+
+                    <!-- Displaying Graph Canvas Box with Synchronized Tracer -->
+                    <div class="graph-preview-box">
+                        <div class="displaying-header">
+                            <div>
+                                <span>Displaying Graph:</span>
+                                <span class="selected-letter-badge" id="selectedLetterBadge">--</span>
+                            </div>
+                            <div class="graph-view-toggles" id="dualToggles" style="display: none;">
+                                <button class="view-pill active" id="btnViewMain">Worksheet Type</button>
+                                <button class="view-pill" id="btnViewDual">Dual (<span class="math-expr">x-t</span> &amp; <span class="math-expr">v-t</span>)</button>
+                            </div>
+                        </div>
+                        
+                        <canvas id="graphCanvas" width="320" height="210" style="display: none;"></canvas>
+                        <div class="empty-preview-prompt" id="emptyPrompt">Tap a letter (A through K) to inspect its synchronized graph.</div>
+                    </div>
+                </div>
+
+                <!-- Check Answer & PER Diagnostic Feedback -->
+                <div class="check-answer-area">
+                    <button class="btn-check" id="btnCheck" disabled>Check Answer</button>
+                    <div class="diagnostic-card" id="diagnosticCard">
+                        <div class="diagnostic-title" id="diagTitle"></div>
+                        <div class="diagnostic-body" id="diagBody"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 2: Sketch Prediction Mode (Generation Effect) -->
+            <div id="sketch-tab" class="tab-view">
+                <h3>✏️ Sketch Your Prediction First</h3>
+                <p style="font-size: 0.9rem; color: var(--text-muted); margin-top: 0.25rem;">
+                    Before viewing options A–K, sketch your prediction of the motion curve. Research shows predicting first enhances conceptual mastery!
+                </p>
+
+                <div class="sketch-container">
+                    <div class="sketch-toolbar">
+                        <button class="btn-ctrl secondary" id="btnSketchType">Type: Position-Time (x-t)</button>
+                        <button class="btn-ctrl secondary" id="btnClearSketch">Clear Canvas</button>
+                    </div>
+                    <canvas id="sketchCanvas" width="480" height="260"></canvas>
+                </div>
+            </div>
+
+            <!-- Tab 3: Custom Scenario Builder -->
+            <div id="builder-tab" class="tab-view">
+                <h3>🛠️ Custom Kinematics Scenario Builder</h3>
+                <p style="font-size: 0.9rem; color: var(--text-muted); margin-top: 0.25rem;">
+                    Design custom multi-stage 1D motions. The simulation dynamically calculates the kinematics, generates the motion map, and renders exact graphs!
+                </p>
+
+                <div class="builder-grid">
+                    <div>
+                        <div class="stage-card">
+                            <h4>Stage 1: Initial Motion</h4>
+                            <div class="form-row">
+                                <label>Start Position (<span class="math-expr">x<sub>0</sub></span>):</label>
+                                <input type="number" id="buildX0" value="2" min="0" max="20" step="1">
+                            </div>
+                            <div class="form-row">
+                                <label>Initial Velocity (<span class="math-expr">v<sub>0</sub></span>):</label>
+                                <input type="number" id="buildV0" value="4" min="-10" max="10" step="1">
+                            </div>
+                            <div class="form-row">
+                                <label>Acceleration (<span class="math-expr">a<sub>1</sub></span>):</label>
+                                <input type="number" id="buildA1" value="0" min="-6" max="6" step="0.5">
+                            </div>
+                            <div class="form-row">
+                                <label>Duration (&Delta;<span class="math-expr">t<sub>1</sub></span>):</label>
+                                <input type="number" id="buildT1" value="2.0" min="0.5" max="5" step="0.5">
+                            </div>
+                        </div>
+
+                        <div class="stage-card">
+                            <h4>Stage 2: Subsequent Motion</h4>
+                            <div class="form-row">
+                                <label>Action:</label>
+                                <select id="buildStage2Type">
+                                    <option value="continue">Continue Acceleration</option>
+                                    <option value="rest">Stop at Rest (v = 0)</option>
+                                    <option value="reverse">Reverse Velocity</option>
+                                </select>
+                            </div>
+                            <div class="form-row">
+                                <label>Acceleration (<span class="math-expr">a<sub>2</sub></span>):</label>
+                                <input type="number" id="buildA2" value="-2" min="-6" max="6" step="0.5">
+                            </div>
+                            <div class="form-row">
+                                <label>Duration (&Delta;<span class="math-expr">t<sub>2</sub></span>):</label>
+                                <input type="number" id="buildT2" value="2.0" min="0.5" max="5" step="0.5">
+                            </div>
+                        </div>
+
+                        <button class="btn-ctrl" id="btnApplyBuilder" style="width: 100%; justify-content: center;">
+                            Apply & Simulate Custom Motion
+                        </button>
+                    </div>
+
+                    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                        <canvas id="builderGraphCanvas" width="320" height="220"></canvas>
+                        <div style="font-size: 0.85rem; font-weight: 700; color: var(--text-muted); margin-top: 0.5rem;">
+                            Live Generated Kinematic Plot
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Right Side: Task Tracker & Progress Panel -->
+        <div class="card progress-card">
+            <h3>Progress Report</h3>
+            
+            <div class="levels-grid" id="levelsGrid"></div>
+
+            <div class="progress-meters">
+                <div class="meter-col">
+                    <div class="meter-label">Progress</div>
+                    <div class="meter-bar-outer">
+                        <div class="meter-bar-fill" id="progressBarFill" style="height: 0%; background-color: var(--primary-teal);"></div>
+                    </div>
+                    <div class="meter-percent" id="progressPercent">0 %</div>
+                </div>
+
+                <div class="meter-col">
+                    <div class="meter-label">Health</div>
+                    <div class="meter-bar-outer">
+                        <div class="meter-bar-fill" id="healthBarFill" style="height: 100%; background-color: var(--accent-amber);"></div>
+                    </div>
+                    <div class="meter-percent" id="healthPercent">100 %</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        /*
+         ==========================================================================
+         ADVANCED GRAPH THAT MOTION ENGINE (PER Enhanced)
+         ==========================================================================
+        */
+
+        // The 11 Canonical Kinematic Scenarios from the Handout (A through K)
+        const graphs = {
+            'A': {
+                letter: 'A',
+                type: 'position',
+                title: 'Position vs Time',
+                startX: 1.0,
+                startV: 0.0,
+                stages: [{ d: 3.5, a: 2.7 }],
+                desc: 'Speeds up to the right from rest with positive acceleration.'
+            },
+            'B': {
+                letter: 'B',
+                type: 'velocity',
+                title: 'Velocity vs Time',
+                startX: 18.0,
+                startV: -4.0,
+                stages: [
+                    { d: 1.4, a: 0.0 },
+                    { d: 1.2, a: 0.0, vForce: 0 },
+                    { d: 1.6, a: 3.2, vForce: 0 }
+                ],
+                desc: 'Moves left at constant speed, stops at rest, then speeds up to the right.'
+            },
+            'C': {
+                letter: 'C',
+                type: 'velocity',
+                title: 'Velocity vs Time',
+                startX: 18.5,
+                startV: -4.2,
+                stages: [{ d: 3.8, a: 0.0 }],
+                desc: 'Moves left with a constant negative velocity throughout.'
+            },
+            'D': {
+                letter: 'D',
+                type: 'position',
+                title: 'Position vs Time',
+                startX: 18.5,
+                startV: -6.0,
+                stages: [
+                    { d: 1.5, a: 4.0 },
+                    { d: 1.2, a: 0.0, vForce: 0 },
+                    { d: 1.5, a: 0.0, vForce: -4.0 }
+                ],
+                desc: 'Moves left while slowing down, stops at rest, then moves left at constant speed.'
+            },
+            'E': {
+                letter: 'E',
+                type: 'position',
+                title: 'Position vs Time',
+                startX: 1.5,
+                startV: 4.2,
+                stages: [{ d: 3.8, a: 0.0 }],
+                desc: 'Moves right with constant positive velocity starting from near origin.'
+            },
+            'F': {
+                letter: 'F',
+                type: 'velocity',
+                title: 'Velocity vs Time',
+                startX: 18.5,
+                startV: 0.0,
+                stages: [
+                    { d: 1.5, a: -3.6 },
+                    { d: 1.2, a: 0.0, vForce: 0 },
+                    { d: 1.5, a: 0.0, vForce: -4.5 }
+                ],
+                desc: 'Speeds up to the left from rest, stops at rest, then cruises left at constant speed.'
+            },
+            'G': {
+                letter: 'G',
+                type: 'position',
+                title: 'Position vs Time',
+                startX: 2.0,
+                startV: 5.5,
+                stages: [
+                    { d: 1.5, a: 0.0 },
+                    { d: 1.2, a: 0.0, vForce: 0 },
+                    { d: 1.5, a: 0.0, vForce: -5.5 }
+                ],
+                desc: 'Moves right at constant speed, stops at rest, then reverses left at constant speed.'
+            },
+            'H': {
+                letter: 'H',
+                type: 'velocity',
+                title: 'Velocity vs Time',
+                startX: 1.5,
+                startV: 8.5,
+                stages: [{ d: 3.5, a: -2.43 }],
+                desc: 'Starts moving fast to the right and slows down with constant acceleration to a stop.'
+            },
+            'I': {
+                letter: 'I',
+                type: 'position',
+                title: 'Position vs Time',
+                startX: 18.5,
+                startV: 0.0,
+                stages: [{ d: 3.5, a: -2.7 }],
+                desc: 'Starts from rest at the far right and speeds up moving left (concave down).'
+            },
+            'J': {
+                letter: 'J',
+                type: 'position',
+                title: 'Position vs Time',
+                startX: 1.5,
+                startV: 3.8,
+                stages: [
+                    { d: 1.4, a: 0.0 },
+                    { d: 1.2, a: 0.0, vForce: 0 },
+                    { d: 1.6, a: 3.5, vForce: 0 }
+                ],
+                desc: 'Moves right at constant speed, stops at rest, then speeds up to the right.'
+            },
+            'K': {
+                letter: 'K',
+                type: 'position',
+                title: 'Position vs Time',
+                startX: 18.5,
+                startV: -8.5,
+                stages: [{ d: 3.5, a: 2.43 }],
+                desc: 'Starts moving left fast and slows down with positive acceleration to a stop.'
+            }
+        };
+
+        // Compute stage kinematics for all scenarios
+        function computeStages(scen) {
+            let currentX = scen.startX;
+            let currentV = scen.startV;
+            let currentTime = 0;
+            scen.computedStages = [];
+            
+            for (let s of scen.stages) {
+                if (s.vForce !== undefined) currentV = s.vForce;
+                scen.computedStages.push({
+                    tStart: currentTime,
+                    tEnd: currentTime + s.d,
+                    x0: currentX,
+                    v0: currentV,
+                    a: s.a
+                });
+                currentX = currentX + currentV * s.d + 0.5 * s.a * s.d * s.d;
+                currentV = currentV + s.a * s.d;
+                currentTime += s.d;
+            }
+            scen.totalTime = currentTime;
+        }
+
+        Object.values(graphs).forEach(computeStages);
+
+        // Game State
+        const lettersList = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K'];
+        let levelAssignments = lettersList.slice().sort(() => 0.5 - Math.random());
+        let currentLevel = 0;
+        let solvedLevels = new Set();
+        let currentSelectedLetter = null;
+        let health = 100;
+        let isSlowMo = false;
+        let showDual = false;
+
+        // Visual Overlay Settings
+        let showVelocity = true;
+        let showAcceleration = true;
+        let showMotionDots = true;
+        let showTracer = true;
+
+        // Canvas References
+        const simCanvas = document.getElementById('simCanvas');
+        const sctx = simCanvas.getContext('2d');
+        const graphCanvas = document.getElementById('graphCanvas');
+        const gctx = graphCanvas.getContext('2d');
+        
+        let simTime = 0;
+        let isPlaying = false;
+        let animationId = null;
+        let lastTimestamp = 0;
+        let motionDots = [];
+        const dotInterval = 0.30;
+        const trackLength = 20; // meters
+        const trackY = 85;
+        const car = { x: 0, v: 0, a: 0, heading: 1 };
+
+        // DOM elements
+        const lettersGrid = document.getElementById('lettersGrid');
+        const levelsGrid = document.getElementById('levelsGrid');
+        const selectedLetterBadge = document.getElementById('selectedLetterBadge');
+        const emptyPrompt = document.getElementById('emptyPrompt');
+        const btnCheck = document.getElementById('btnCheck');
+        const diagnosticCard = document.getElementById('diagnosticCard');
+        const diagTitle = document.getElementById('diagTitle');
+        const diagBody = document.getElementById('diagBody');
+        const btnPlayPause = document.getElementById('btnPlayPause');
+        const playIcon = document.getElementById('playIcon');
+        const playText = document.getElementById('playText');
+        const btnReplay = document.getElementById('btnReplay');
+        const btnSlowMo = document.getElementById('btnSlowMo');
+        const timeScrubber = document.getElementById('timeScrubber');
+        const timeDisplay = document.getElementById('timeDisplay');
+        const progressBarFill = document.getElementById('progressBarFill');
+        const progressPercent = document.getElementById('progressPercent');
+        const healthBarFill = document.getElementById('healthBarFill');
+        const healthPercent = document.getElementById('healthPercent');
+        const dualToggles = document.getElementById('dualToggles');
+        const btnViewMain = document.getElementById('btnViewMain');
+        const btnViewDual = document.getElementById('btnViewDual');
+
+        function initGame() {
+            buildLetterButtons();
+            buildLevelsGrid();
+            setupModeTabs();
+            setupOverlays();
+            setupSketchCanvas();
+            setupBuilder();
+            loadLevel(0);
+        }
+
+        function buildLetterButtons() {
+            lettersGrid.innerHTML = '';
+            lettersList.forEach(letter => {
+                const btn = document.createElement('button');
+                btn.className = 'letter-btn';
+                btn.textContent = letter;
+                btn.id = `btn-letter-${letter}`;
+                btn.addEventListener('click', () => selectLetter(letter));
+                lettersGrid.appendChild(btn);
+            });
+        }
+
+        function buildLevelsGrid() {
+            levelsGrid.innerHTML = '';
+            for (let i = 0; i < 11; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'level-cell';
+                cell.textContent = `#${i + 1}`;
+                cell.id = `level-cell-${i}`;
+                cell.addEventListener('click', () => loadLevel(i));
+                levelsGrid.appendChild(cell);
+            }
+        }
+
+        function setupModeTabs() {
+            document.querySelectorAll('.mode-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+                    document.querySelectorAll('.tab-view').forEach(t => t.classList.remove('active'));
+                    btn.classList.add('active');
+                    document.getElementById(btn.dataset.tab).classList.add('active');
+                });
+            });
+        }
+
+        function setupOverlays() {
+            document.getElementById('chkVelocity').addEventListener('change', e => { showVelocity = e.target.checked; renderStage(); });
+            document.getElementById('chkAcceleration').addEventListener('change', e => { showAcceleration = e.target.checked; renderStage(); });
+            document.getElementById('chkMotionDots').addEventListener('change', e => { showMotionDots = e.target.checked; renderStage(); });
+            document.getElementById('chkTracer').addEventListener('change', e => { showTracer = e.target.checked; if (currentSelectedLetter) drawGraphPreview(graphs[currentSelectedLetter]); });
+
+            btnViewMain.addEventListener('click', () => {
+                showDual = false;
+                btnViewMain.classList.add('active');
+                btnViewDual.classList.remove('active');
+                if (currentSelectedLetter) drawGraphPreview(graphs[currentSelectedLetter]);
+            });
+
+            btnViewDual.addEventListener('click', () => {
+                showDual = true;
+                btnViewDual.classList.add('active');
+                btnViewMain.classList.remove('active');
+                if (currentSelectedLetter) drawGraphPreview(graphs[currentSelectedLetter]);
+            });
+        }
+
+        function loadLevel(levelIndex) {
+            currentLevel = levelIndex;
+            updateLevelsUI();
+            
+            currentSelectedLetter = null;
+            selectedLetterBadge.textContent = '--';
+            graphCanvas.style.display = 'none';
+            dualToggles.style.display = 'none';
+            emptyPrompt.style.display = 'block';
+            document.querySelectorAll('.letter-btn').forEach(b => b.classList.remove('active'));
+            btnCheck.disabled = true;
+            diagnosticCard.style.display = 'none';
+
+            startAnimation();
+        }
+
+        function updateLevelsUI() {
+            for (let i = 0; i < 11; i++) {
+                const cell = document.getElementById(`level-cell-${i}`);
+                cell.className = 'level-cell';
+                if (i === currentLevel) cell.classList.add('current');
+                if (solvedLevels.has(i)) cell.classList.add('solved');
+            }
+
+            let pct = Math.round((solvedLevels.size / 11) * 100);
+            progressBarFill.style.height = `${pct}%`;
+            progressPercent.textContent = `${pct} %`;
+
+            healthBarFill.style.height = `${health}%`;
+            healthPercent.textContent = `${health} %`;
+        }
+
+        function selectLetter(letter) {
+            currentSelectedLetter = letter;
+            document.querySelectorAll('.letter-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(`btn-letter-${letter}`).classList.add('active');
+            
+            selectedLetterBadge.textContent = letter;
+            emptyPrompt.style.display = 'none';
+            graphCanvas.style.display = 'block';
+            dualToggles.style.display = 'flex';
+            
+            drawGraphPreview(graphs[letter]);
+            btnCheck.disabled = false;
+        }
+
+        /*
+         ==========================================================================
+         SIMULATION PLAYBACK & SYNCHRONIZED PLAYHEAD
+         ==========================================================================
+        */
+        function getCurrentTargetScenario() {
+            let targetLetter = levelAssignments[currentLevel];
+            return graphs[targetLetter];
+        }
+
+        function evaluateKinematics(scen, t) {
+            if (t <= 0) return { x: scen.startX, v: scen.startV, a: scen.computedStages[0].a, isRest: Math.abs(scen.startV) < 0.05 };
+            if (t >= scen.totalTime) {
+                let last = scen.computedStages[scen.computedStages.length - 1];
+                let dt = scen.totalTime - last.tStart;
+                return {
+                    x: last.x0 + last.v0 * dt + 0.5 * last.a * dt * dt,
+                    v: last.v0 + last.a * dt,
+                    a: last.a,
+                    isRest: Math.abs(last.v0 + last.a * dt) < 0.08
+                };
+            }
+            
+            let stage = scen.computedStages[scen.computedStages.length - 1];
+            for (let s of scen.computedStages) {
+                if (t >= s.tStart && t <= s.tEnd) {
+                    stage = s;
+                    break;
+                }
+            }
+            let dt = t - stage.tStart;
+            let x = stage.x0 + stage.v0 * dt + 0.5 * stage.a * dt * dt;
+            let v = stage.v0 + stage.a * dt;
+            let isRest = (Math.abs(v) < 0.08 && stage.a === 0) || (Math.abs(v) < 0.08 && stage.v0 === 0 && stage.a === 0);
+            return { x, v, a: stage.a, isRest };
+        }
+
+        function startAnimation() {
+            const scen = getCurrentTargetScenario();
+            simTime = 0;
+            motionDots = [];
+            isPlaying = true;
+            playIcon.textContent = '⏸';
+            playText.textContent = 'Pause';
+            
+            timeScrubber.max = scen.totalTime;
+            timeScrubber.value = 0;
+
+            car.x = scen.startX;
+            car.v = scen.startV;
+            car.a = scen.computedStages[0].a;
+            car.heading = scen.startV < 0 ? -1 : 1;
+
+            cancelAnimationFrame(animationId);
+            lastTimestamp = performance.now();
+            animationId = requestAnimationFrame(animLoop);
+        }
+
+        function animLoop(timestamp) {
+            if (!isPlaying) return;
+            
+            let dt = (timestamp - lastTimestamp) / 1000;
+            lastTimestamp = timestamp;
+            if (isSlowMo) dt *= 0.45;
+
+            if (dt < 0.15) {
+                simTime += dt;
+                const scen = getCurrentTargetScenario();
+                
+                if (simTime > scen.totalTime) {
+                    simTime = scen.totalTime;
+                    isPlaying = false;
+                    playIcon.textContent = '▶';
+                    playText.textContent = 'Play';
+                }
+
+                syncTimeToSimulation(simTime, scen);
+            }
+            
+            renderStage();
+            if (currentSelectedLetter) drawGraphPreview(graphs[currentSelectedLetter]);
+
+            if (isPlaying) {
+                animationId = requestAnimationFrame(animLoop);
+            }
+        }
+
+        function syncTimeToSimulation(t, scen) {
+            let kin = evaluateKinematics(scen, t);
+            car.x = kin.x;
+            car.v = kin.v;
+            car.a = kin.a;
+            if (Math.abs(kin.v) > 0.1) {
+                car.heading = kin.v < 0 ? -1 : 1;
+            }
+
+            timeScrubber.value = t;
+            timeDisplay.textContent = `${t.toFixed(1)} s`;
+
+            // Motion Map Dots
+            let expectedDotCount = Math.floor(t / dotInterval) + 1;
+            while (motionDots.length < expectedDotCount && (motionDots.length * dotInterval) <= scen.totalTime) {
+                let dotTime = motionDots.length * dotInterval;
+                let dotKin = evaluateKinematics(scen, dotTime);
+                
+                let restStack = 0;
+                if (motionDots.length > 0) {
+                    let prevDot = motionDots[motionDots.length - 1];
+                    if (Math.abs(dotKin.x - prevDot.x) < 0.28 || dotKin.isRest) {
+                        restStack = prevDot.restStack + 1;
+                        dotKin.x = prevDot.x;
+                    }
+                }
+
+                motionDots.push({
+                    x: dotKin.x,
+                    v: dotKin.v,
+                    a: dotKin.a,
+                    restStack: restStack
+                });
+            }
+        }
+
+        /*
+         ==========================================================================
+         STAGE RENDERING (CAR, TRACK, MOTION MAP, VECTORS)
+         ==========================================================================
+        */
+        function renderStage() {
+            const w = simCanvas.width;
+            const h = simCanvas.height;
+            const margin = 45;
+            const trackW = w - 2 * margin;
+            const pxPerMeter = trackW / trackLength;
+
+            sctx.clearRect(0, 0, w, h);
+
+            // Track Line
+            sctx.beginPath();
+            sctx.moveTo(margin, trackY);
+            sctx.lineTo(w - margin, trackY);
+            sctx.strokeStyle = "#94a3b8";
+            sctx.lineWidth = 3;
+            sctx.stroke();
+
+            // Ticks
+            sctx.fillStyle = "#64748b";
+            sctx.font = "11px sans-serif";
+            sctx.textAlign = "center";
+            for (let m = 0; m <= trackLength; m += 2) {
+                let px = margin + m * pxPerMeter;
+                sctx.beginPath();
+                sctx.moveTo(px, trackY);
+                sctx.lineTo(px, trackY + 7);
+                sctx.strokeStyle = "#94a3b8";
+                sctx.lineWidth = 1.5;
+                sctx.stroke();
+                sctx.fillText(m + "m", px, trackY + 20);
+            }
+
+            // Motion Map Dots
+            if (showMotionDots) {
+                const dotY = trackY - 2;
+                sctx.fillStyle = "#64748b";
+                motionDots.forEach(dot => {
+                    let dpx = margin + dot.x * pxPerMeter;
+                    let dpy = dotY - (dot.restStack * 6) + (dot.restStack % 2 === 0 ? 3 : -3);
+                    if (dot.restStack === 0) dpy = dotY;
+
+                    sctx.beginPath();
+                    sctx.arc(dpx, dpy, 5, 0, Math.PI * 2);
+                    sctx.fill();
+                    sctx.strokeStyle = "#475569";
+                    sctx.lineWidth = 1;
+                    sctx.stroke();
+
+                    // Optional mini velocity vectors on dots
+                    if (showVelocity && Math.abs(dot.v) > 0.3) {
+                        drawVectorArrow(sctx, dpx, dpy - 10, dpx + dot.v * 3, dpy - 10, "var(--accent-amber)", 1.5);
+                    }
+                });
+            }
+
+            // Car
+            let carPx = margin + car.x * pxPerMeter;
+            drawRedCar(sctx, carPx, trackY, car.heading);
+
+            // Live Velocity Vector Arrow (Amber)
+            if (showVelocity && Math.abs(car.v) > 0.1) {
+                let vLen = car.v * 7;
+                drawVectorArrow(sctx, carPx, trackY - 45, carPx + vLen, trackY - 45, "var(--accent-amber)", 3.5, "v");
+            }
+
+            // Live Acceleration Vector Arrow (Teal)
+            if (showAcceleration && Math.abs(car.a) > 0.1) {
+                let aLen = car.a * 14;
+                drawVectorArrow(sctx, carPx, trackY - 60, carPx + aLen, trackY - 60, "var(--primary-teal)", 3.5, "a");
+            }
+        }
+
+        function drawRedCar(ctx, x, y, heading) {
+            ctx.save();
+            ctx.translate(x, y);
+            if (heading < 0) ctx.scale(-1, 1);
+
+            // Body
+            ctx.fillStyle = "#e05344";
+            ctx.beginPath();
+            ctx.moveTo(38, 0);
+            ctx.lineTo(36, -8);
+            ctx.lineTo(24, -14);
+            ctx.lineTo(12, -22);
+            ctx.lineTo(-20, -22);
+            ctx.lineTo(-34, -12);
+            ctx.lineTo(-38, 0);
+            ctx.closePath();
+            ctx.fill();
+            ctx.strokeStyle = "#991b1b";
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+
+            // Window
+            ctx.fillStyle = "#ffffff";
+            ctx.beginPath();
+            ctx.moveTo(8, -20);
+            ctx.lineTo(-16, -20);
+            ctx.lineTo(-16, -11);
+            ctx.lineTo(18, -11);
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+
+            // Wheels
+            drawWheel(ctx, 22, 0);
+            drawWheel(ctx, -22, 0);
+
+            ctx.restore();
+        }
+
+        function drawWheel(ctx, wx, wy) {
+            ctx.fillStyle = "#1e293b";
+            ctx.beginPath(); ctx.arc(wx, wy, 9, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = "#cbd5e1";
+            ctx.beginPath(); ctx.arc(wx, wy, 5, 0, Math.PI * 2); ctx.fill();
+        }
+
+        function drawVectorArrow(ctx, fromx, fromy, tox, toy, color, lineWidth = 3, label = "") {
+            const headlen = 7;
+            const dx = tox - fromx;
+            const dy = toy - fromy;
+            const angle = Math.atan2(dy, dx);
+            
+            ctx.beginPath();
+            ctx.moveTo(fromx, fromy);
+            ctx.lineTo(tox, toy);
+            ctx.lineTo(tox - headlen * Math.cos(angle - Math.PI / 6), toy - headlen * Math.sin(angle - Math.PI / 6));
+            ctx.moveTo(tox, toy);
+            ctx.lineTo(tox - headlen * Math.cos(angle + Math.PI / 6), toy - headlen * Math.sin(angle + Math.PI / 6));
+            ctx.strokeStyle = color;
+            ctx.lineWidth = lineWidth;
+            ctx.stroke();
+
+            if (label) {
+                ctx.fillStyle = color;
+                ctx.font = "bold 12px sans-serif";
+                ctx.textAlign = dx >= 0 ? "left" : "right";
+                ctx.fillText(label, tox + (dx >= 0 ? 5 : -5), toy + 4);
+            }
+        }
+
+        /*
+         ==========================================================================
+         GRAPH CANVAS RENDERING WITH SYNCHRONIZED TRACER
+         ==========================================================================
+        */
+        function drawGraphPreview(scen) {
+            const w = graphCanvas.width;
+            const h = graphCanvas.height;
+            const m = 40;
+
+            gctx.clearRect(0, 0, w, h);
+
+            if (!showDual) {
+                renderSingleGraph(gctx, scen, scen.type, m, 15, w - m - 20, h - m - 20, true);
+            } else {
+                // Dual view: stack position on top, velocity on bottom
+                let subH = (h - 2 * m) / 2;
+                renderSingleGraph(gctx, scen, 'position', m, 10, w - m - 20, subH, false, "position (x)");
+                renderSingleGraph(gctx, scen, 'velocity', m, subH + 35, w - m - 20, subH, true, "velocity (v)");
+            }
+        }
+
+        function renderSingleGraph(ctx, scen, type, ox, oy, plotW, plotH, showTimeLabel, customYLabel = null) {
+            ctx.strokeStyle = "#000000";
+            ctx.lineWidth = 2;
+
+            // Y-Axis
+            ctx.beginPath();
+            ctx.moveTo(ox, oy);
+            ctx.lineTo(ox, oy + plotH);
+            ctx.stroke();
+
+            // X-Axis
+            let xAxisY = oy + plotH;
+            if (type === 'velocity') {
+                xAxisY = oy + plotH / 2;
+            }
+            ctx.beginPath();
+            ctx.moveTo(ox, xAxisY);
+            ctx.lineTo(ox + plotW, xAxisY);
+            ctx.stroke();
+
+            // Text Labels
+            ctx.fillStyle = "#000000";
+            ctx.font = "bold 11px sans-serif";
+            if (showTimeLabel) {
+                ctx.textAlign = "center";
+                ctx.fillText("time", ox + plotW / 2, oy + plotH + 16);
+            }
+
+            ctx.save();
+            ctx.translate(ox - 24, oy + plotH / 2);
+            ctx.rotate(-Math.PI / 2);
+            ctx.textAlign = "center";
+            ctx.fillText(customYLabel || (type === 'position' ? 'position' : 'velocity'), 0, 0);
+            ctx.restore();
+
+            if (type === 'velocity') {
+                ctx.font = "bold 10px sans-serif";
+                ctx.textAlign = "right";
+                ctx.fillText("+", ox - 4, oy + 12);
+                ctx.fillText("0", ox - 4, xAxisY + 3);
+                ctx.fillText("-", ox - 4, oy + plotH - 2);
+            }
+
+            // Curve
+            ctx.strokeStyle = type === 'position' ? "var(--primary-teal)" : "#e05344";
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+
+            const numPoints = 80;
+            let currentTracerPoint = null;
+
+            for (let i = 0; i <= numPoints; i++) {
+                let t = (i / numPoints) * scen.totalTime;
+                let kin = evaluateKinematics(scen, t);
+                let px = ox + (i / numPoints) * plotW;
+                let py;
+
+                if (type === 'position') {
+                    let normX = Math.max(0, Math.min(20, kin.x)) / 20;
+                    py = (oy + plotH) - normX * plotH;
+                } else {
+                    let normV = (kin.v + 10) / 20;
+                    py = (oy + plotH) - normV * plotH;
+                }
+
+                if (i === 0) ctx.moveTo(px, py);
+                else ctx.lineTo(px, py);
+
+                if (Math.abs(t - simTime) < (scen.totalTime / numPoints)) {
+                    currentTracerPoint = { px, py };
+                }
+            }
+            ctx.stroke();
+
+            // Transition Dots
+            scen.computedStages.forEach((stage, sIdx) => {
+                if (sIdx > 0) {
+                    let prevStage = scen.computedStages[sIdx - 1];
+                    let tTrans = stage.tStart;
+                    let kin = evaluateKinematics(scen, tTrans);
+                    let px = ox + (tTrans / scen.totalTime) * plotW;
+                    let py = type === 'position' ? (oy + plotH) - (Math.max(0, Math.min(20, kin.x)) / 20) * plotH : (oy + plotH) - ((kin.v + 10) / 20) * plotH;
+
+                    if (stage.v0 === 0 || prevStage.v0 === 0 || prevStage.a !== stage.a) {
+                        ctx.beginPath();
+                        ctx.arc(px, py, 4, 0, Math.PI * 2);
+                        ctx.fillStyle = "#000000";
+                        ctx.fill();
+                    }
+                }
+            });
+
+            // Live Glowing Tracer Dot
+            if (showTracer && currentTracerPoint) {
+                ctx.beginPath();
+                ctx.arc(currentTracerPoint.px, currentTracerPoint.py, 6, 0, Math.PI * 2);
+                ctx.fillStyle = "var(--accent-amber)";
+                ctx.fill();
+                ctx.strokeStyle = "#ffffff";
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            }
+        }
+
+        /*
+         ==========================================================================
+         PER DIAGNOSTIC FEEDBACK ENGINE
+         ==========================================================================
+        */
+        function getDiagnosticFeedback(chosenLetter, targetLetter) {
+            const chosen = graphs[chosenLetter];
+            const target = graphs[targetLetter];
+
+            // 1. Graph Type Confusion (Position vs Velocity)
+            if (chosen.type !== target.type) {
+                return {
+                    title: "⚠️ Graph Type Confusion",
+                    body: `Graph ${chosenLetter} is a <strong>${chosen.type.toUpperCase()}</strong> graph, but the current motion corresponds to a <strong>${target.type.toUpperCase()}</strong> graph. Check the vertical axis!`
+                };
+            }
+
+            // 2. Initial Direction Error
+            let targetInitialDir = target.startV > 0 ? "right" : (target.startV < 0 ? "left" : "at rest");
+            let chosenInitialDir = chosen.startV > 0 ? "right" : (chosen.startV < 0 ? "left" : "at rest");
+            if (targetInitialDir !== chosenInitialDir && targetInitialDir !== "at rest") {
+                return {
+                    title: "🧭 Direction Mismatch",
+                    body: `The car starts by moving <strong>${targetInitialDir}</strong>, but Graph ${chosenLetter} represents an object starting <strong>${chosenInitialDir}</strong>.`
+                };
+            }
+
+            // 3. Slope vs Velocity Confusion
+            if (target.stages[0].a !== 0 && chosen.stages[0].a === 0) {
+                return {
+                    title: "📈 Acceleration Misconception",
+                    body: `In this motion, the car is <strong>changing its speed</strong> (accelerating). Graph ${chosenLetter} shows a straight linear slope with zero acceleration.`
+                };
+            }
+
+            // 4. Default Targeted Feedback
+            return {
+                title: "❌ Misconception Check",
+                body: `Graph ${chosenLetter} shows: <em>${chosen.desc}</em><br>Replay the motion and observe how the car accelerates and rests.`
+            };
+        }
+
+        /*
+         ==========================================================================
+         CHECK ANSWER HANDLER
+         ==========================================================================
+        */
+        btnCheck.addEventListener('click', () => {
+            if (!currentSelectedLetter) return;
+
+            const targetLetter = levelAssignments[currentLevel];
+
+            if (currentSelectedLetter === targetLetter) {
+                solvedLevels.add(currentLevel);
+                diagnosticCard.className = 'diagnostic-card success';
+                diagTitle.innerHTML = '🎉 Correct Match!';
+                diagBody.innerHTML = `Awesome! Motion #${currentLevel + 1} precisely corresponds to Graph ${currentSelectedLetter}: <em>${graphs[targetLetter].desc}</em>`;
+                
+                updateLevelsUI();
+
+                setTimeout(() => {
+                    if (solvedLevels.size < 11) {
+                        let next = (currentLevel + 1) % 11;
+                        while (solvedLevels.has(next)) next = (next + 1) % 11;
+                        loadLevel(next);
+                    } else {
+                        diagTitle.innerHTML = '🏆 Mastered All 11 Motions!';
+                        diagBody.innerHTML = 'Outstanding work! You have successfully mastered all 1D Kinematic graphs.';
+                    }
+                }, 1400);
+            } else {
+                health = Math.max(0, health - 10);
+                updateLevelsUI();
+
+                const diag = getDiagnosticFeedback(currentSelectedLetter, targetLetter);
+                diagnosticCard.className = 'diagnostic-card error';
+                diagTitle.innerHTML = diag.title;
+                diagBody.innerHTML = diag.body;
+            }
+        });
+
+        /*
+         ==========================================================================
+         SCRUBBER & PLAYBACK CONTROLS
+         ==========================================================================
+        */
+        btnPlayPause.addEventListener('click', () => {
+            if (isPlaying) {
+                isPlaying = false;
+                playIcon.textContent = '▶';
+                playText.textContent = 'Play';
+                cancelAnimationFrame(animationId);
+            } else {
+                const scen = getCurrentTargetScenario();
+                if (simTime >= scen.totalTime) simTime = 0;
+                isPlaying = true;
+                playIcon.textContent = '⏸';
+                playText.textContent = 'Pause';
+                lastTimestamp = performance.now();
+                animationId = requestAnimationFrame(animLoop);
+            }
+        });
+
+        btnReplay.addEventListener('click', () => {
+            startAnimation();
+        });
+
+        btnSlowMo.addEventListener('click', () => {
+            isSlowMo = !isSlowMo;
+            btnSlowMo.textContent = `Slow-Mo: ${isSlowMo ? 'ON' : 'OFF'}`;
+            btnSlowMo.style.backgroundColor = isSlowMo ? '#e2e8f0' : '#ffffff';
+        });
+
+        timeScrubber.addEventListener('input', e => {
+            isPlaying = false;
+            playIcon.textContent = '▶';
+            playText.textContent = 'Play';
+            cancelAnimationFrame(animationId);
+            
+            simTime = parseFloat(e.target.value);
+            const scen = getCurrentTargetScenario();
+            motionDots = []; // rebuild dots up to this point
+            syncTimeToSimulation(simTime, scen);
+            renderStage();
+            if (currentSelectedLetter) drawGraphPreview(graphs[currentSelectedLetter]);
+        });
+
+        /*
+         ==========================================================================
+         SKETCH PREDICTION CANVAS LOGIC
+         ==========================================================================
+        */
+        function setupSketchCanvas() {
+            const skCanvas = document.getElementById('sketchCanvas');
+            const skCtx = skCanvas.getContext('2d');
+            let isDrawing = false;
+            let sketchType = 'position';
+
+            function drawAxes() {
+                skCtx.clearRect(0, 0, skCanvas.width, skCanvas.height);
+                skCtx.strokeStyle = "#334155";
+                skCtx.lineWidth = 2;
+                
+                // Y-Axis
+                skCtx.beginPath();
+                skCtx.moveTo(40, 20);
+                skCtx.lineTo(40, skCanvas.height - 30);
+                skCtx.stroke();
+
+                // X-Axis
+                let yZero = sketchType === 'position' ? skCanvas.height - 30 : skCanvas.height / 2;
+                skCtx.beginPath();
+                skCtx.moveTo(40, yZero);
+                skCtx.lineTo(skCanvas.width - 20, yZero);
+                skCtx.stroke();
+
+                skCtx.fillStyle = "#334155";
+                skCtx.font = "bold 12px sans-serif";
+                skCtx.textAlign = "center";
+                skCtx.fillText("time", skCanvas.width / 2, skCanvas.height - 10);
+
+                skCtx.save();
+                skCtx.translate(16, skCanvas.height / 2);
+                skCtx.rotate(-Math.PI / 2);
+                skCtx.fillText(sketchType, 0, 0);
+                skCtx.restore();
+            }
+
+            drawAxes();
+
+            document.getElementById('btnSketchType').addEventListener('click', () => {
+                sketchType = sketchType === 'position' ? 'velocity' : 'position';
+                document.getElementById('btnSketchType').textContent = `Type: ${sketchType === 'position' ? 'Position-Time (x-t)' : 'Velocity-Time (v-t)'}`;
+                drawAxes();
+            });
+
+            document.getElementById('btnClearSketch').addEventListener('click', drawAxes);
+
+            function startDraw(e) {
+                isDrawing = true;
+                const rect = skCanvas.getBoundingClientRect();
+                const x = (e.clientX || e.touches[0].clientX) - rect.left;
+                const y = (e.clientY || e.touches[0].clientY) - rect.top;
+                skCtx.strokeStyle = "var(--primary-teal)";
+                skCtx.lineWidth = 3;
+                skCtx.beginPath();
+                skCtx.moveTo(x, y);
+            }
+
+            function draw(e) {
+                if (!isDrawing) return;
+                const rect = skCanvas.getBoundingClientRect();
+                const x = (e.clientX || e.touches[0].clientX) - rect.left;
+                const y = (e.clientY || e.touches[0].clientY) - rect.top;
+                skCtx.lineTo(x, y);
+                skCtx.stroke();
+            }
+
+            function stopDraw() { isDrawing = false; }
+
+            skCanvas.addEventListener('mousedown', startDraw);
+            skCanvas.addEventListener('mousemove', draw);
+            window.addEventListener('mouseup', stopDraw);
+            skCanvas.addEventListener('touchstart', startDraw);
+            skCanvas.addEventListener('touchmove', draw);
+            window.addEventListener('touchend', stopDraw);
+        }
+
+        /*
+         ==========================================================================
+         CUSTOM SCENARIO BUILDER LOGIC
+         ==========================================================================
+        */
+        function setupBuilder() {
+            const bCanvas = document.getElementById('builderGraphCanvas');
+            const bCtx = bCanvas.getContext('2d');
+
+            function getCustomScenario() {
+                const x0 = parseFloat(document.getElementById('buildX0').value) || 2;
+                const v0 = parseFloat(document.getElementById('buildV0').value) || 0;
+                const a1 = parseFloat(document.getElementById('buildA1').value) || 0;
+                const t1 = parseFloat(document.getElementById('buildT1').value) || 2;
+                const s2Type = document.getElementById('buildStage2Type').value;
+                const a2 = parseFloat(document.getElementById('buildA2').value) || 0;
+                const t2 = parseFloat(document.getElementById('buildT2').value) || 2;
+
+                let stage2 = { d: t2, a: a2 };
+                if (s2Type === 'rest') stage2.vForce = 0;
+                if (s2Type === 'reverse') stage2.vForce = -(v0 + a1 * t1);
+
+                let customScen = {
+                    startX: x0,
+                    startV: v0,
+                    stages: [{ d: t1, a: a1 }, stage2]
+                };
+                computeStages(customScen);
+                return customScen;
+            }
+
+            function renderBuilderPreview() {
+                const scen = getCustomScenario();
+                const w = bCanvas.width;
+                const h = bCanvas.height;
+                const m = 35;
+
+                bCtx.clearRect(0, 0, w, h);
+                bCtx.strokeStyle = "#000";
+                bCtx.lineWidth = 2;
+
+                // Position plot
+                bCtx.beginPath();
+                bCtx.moveTo(m, 15);
+                bCtx.lineTo(m, h - m);
+                bCtx.lineTo(w - 15, h - m);
+                bCtx.stroke();
+
+                bCtx.strokeStyle = "var(--primary-teal)";
+                bCtx.lineWidth = 3;
+                bCtx.beginPath();
+
+                for (let i = 0; i <= 60; i++) {
+                    let t = (i / 60) * scen.totalTime;
+                    let kin = evaluateKinematics(scen, t);
+                    let px = m + (i / 60) * (w - m - 25);
+                    let py = (h - m) - (Math.max(0, Math.min(20, kin.x)) / 20) * (h - m - 25);
+                    if (i === 0) bCtx.moveTo(px, py);
+                    else bCtx.lineTo(px, py);
+                }
+                bCtx.stroke();
+            }
+
+            document.querySelectorAll('#builder-tab input, #builder-tab select').forEach(elem => {
+                elem.addEventListener('input', renderBuilderPreview);
+            });
+
+            document.getElementById('btnApplyBuilder').addEventListener('click', () => {
+                const customScen = getCustomScenario();
+                levelAssignments[currentLevel] = 'CUSTOM';
+                graphs['CUSTOM'] = {
+                    letter: 'CUSTOM',
+                    type: 'position',
+                    title: 'Custom Motion',
+                    startX: customScen.startX,
+                    startV: customScen.startV,
+                    stages: customScen.stages,
+                    desc: 'Custom user-designed kinematic scenario.'
+                };
+                computeStages(graphs['CUSTOM']);
+                
+                document.querySelector('[data-tab="game-tab"]').click();
+                startAnimation();
+            });
+
+            renderBuilderPreview();
+        }
+
+        window.onload = initGame;
+    </script>
+</body>
+</html>
