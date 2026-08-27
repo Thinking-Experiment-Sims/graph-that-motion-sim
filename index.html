@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Graph That Motion: Coco's Kinematics Adventure</title>
+    <title>Kinematics Studio: Coco's Motion Lab | The Thinking Experiment</title>
     <link rel="icon" type="image/png" href="favicon.png">
     <style>
         :root {
@@ -18,12 +18,14 @@
             --text-dark: #1e293b;
             --text-muted: #64748b;
             --border-color: #cbd5e1;
-            --track-border: #1e293b;
+            --border-light: #e2e8f0;
+            --track-dark: #1e293b;
             --success-green: #10b981;
             --success-bg: #ecfdf5;
             --error-red: #ef4444;
             --error-bg: #fef2f2;
-            --card-shadow: 0 4px 14px rgba(0, 0, 0, 0.07);
+            --card-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+            --card-hover-shadow: 0 8px 24px rgba(15, 126, 155, 0.12);
         }
 
         * {
@@ -45,15 +47,16 @@
             font-style: italic;
         }
 
+        /* Top Navigation Header */
         header {
             background-color: var(--primary-teal);
             color: var(--bg-white);
-            padding: 1.1rem 1.5rem;
-            box-shadow: var(--card-shadow);
+            padding: 1rem 1.75rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
 
         .header-content {
-            max-width: 1280px;
+            max-width: 1360px;
             margin: 0 auto;
             display: flex;
             justify-content: space-between;
@@ -62,102 +65,132 @@
             gap: 1rem;
         }
 
-        .header-title h1 {
-            font-size: 1.6rem;
-            font-weight: 700;
-            letter-spacing: -0.5px;
+        .header-title {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 0.85rem;
         }
 
-        .header-title p {
-            font-size: 0.88rem;
-            opacity: 0.92;
+        .header-title .brand-badge {
+            background: rgba(255, 255, 255, 0.18);
+            padding: 0.25rem 0.65rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
         }
 
-        .mode-nav {
+        .header-title h1 {
+            font-size: 1.45rem;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+        }
+
+        .nav-tabs {
             display: flex;
             gap: 0.4rem;
-            background-color: rgba(255, 255, 255, 0.15);
+            background: rgba(0, 0, 0, 0.15);
             padding: 0.3rem;
             border-radius: 8px;
         }
 
-        .mode-btn {
+        .tab-btn {
             background: transparent;
             color: white;
             border: none;
-            padding: 0.45rem 0.9rem;
+            padding: 0.45rem 1rem;
             border-radius: 6px;
             font-weight: 600;
             font-size: 0.88rem;
             cursor: pointer;
-            transition: all 0.15s;
+            transition: all 0.15s ease;
         }
 
-        .mode-btn:hover {
-            background-color: rgba(255, 255, 255, 0.2);
+        .tab-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
         }
 
-        .mode-btn.active {
-            background-color: var(--bg-white);
+        .tab-btn.active {
+            background: #ffffff;
             color: var(--primary-teal);
             box-shadow: 0 2px 6px rgba(0,0,0,0.15);
         }
 
-        .main-wrapper {
-            max-width: 1280px;
+        /* Main Workspace Container */
+        .workspace {
+            max-width: 1360px;
             margin: 1.5rem auto;
-            padding: 0 1rem;
+            padding: 0 1.25rem;
+        }
+
+        .lab-layout {
             display: grid;
-            grid-template-columns: 1fr 310px;
+            grid-template-columns: 1.15fr 0.85fr;
             gap: 1.5rem;
             align-items: start;
         }
 
-        @media (max-width: 980px) {
-            .main-wrapper {
+        @media (max-width: 1040px) {
+            .lab-layout {
                 grid-template-columns: 1fr;
             }
         }
 
-        .card {
+        .panel-card {
             background-color: var(--bg-white);
-            border-radius: 10px;
+            border-radius: 12px;
             padding: 1.4rem;
             box-shadow: var(--card-shadow);
-            border: 1px solid var(--border-color);
+            border: 1px solid var(--border-light);
         }
 
-        .direction-indicator {
+        /* Arena Stage Header */
+        .stage-header {
             display: flex;
-            justify-content: center;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .scenario-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            background-color: var(--primary-teal-light);
+            color: var(--primary-teal);
+            font-weight: 700;
+            font-size: 0.9rem;
+            padding: 0.3rem 0.75rem;
+            border-radius: 20px;
+            border: 1px solid rgba(15, 126, 155, 0.2);
+        }
+
+        .direction-bar {
+            display: flex;
             align-items: center;
             gap: 0.75rem;
-            font-size: 1.1rem;
             font-weight: 700;
-            color: var(--text-dark);
-            margin-bottom: 0.4rem;
-            user-select: none;
+            font-size: 0.9rem;
+            color: var(--text-muted);
         }
 
-        .direction-indicator span.symbol {
-            font-size: 1.25rem;
-            font-weight: 800;
+        .direction-bar span.sign {
             color: var(--primary-teal);
+            font-weight: 800;
         }
 
-        .track-box {
+        /* Track Container */
+        .track-canvas-wrap {
             width: 100%;
             background: #ffffff;
-            border: 4px solid var(--track-border);
-            border-radius: 4px;
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
             overflow: hidden;
-            display: flex;
-            justify-content: center;
-            box-shadow: inset 0 2px 6px rgba(0,0,0,0.06);
             position: relative;
+            box-shadow: inset 0 2px 8px rgba(0,0,0,0.04);
         }
 
         canvas#simCanvas {
@@ -166,70 +199,89 @@
             display: block;
         }
 
-        /* Playback Toolbar */
-        .playback-toolbar {
+        /* Live Telemetry HUD */
+        .telemetry-hud {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.6rem;
+            margin-top: 0.85rem;
+            padding: 0.6rem 0.85rem;
+            background: var(--bg-page);
+            border-radius: 8px;
+            border: 1px solid var(--border-light);
+        }
+
+        .hud-item {
+            text-align: center;
+        }
+
+        .hud-label {
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .hud-val {
+            font-size: 1.05rem;
+            font-weight: 800;
+            color: var(--primary-teal);
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* Sleek Playback Toolbar */
+        .playback-dock {
             display: flex;
             align-items: center;
-            gap: 0.85rem;
-            margin-top: 0.75rem;
+            gap: 0.75rem;
+            margin-top: 0.85rem;
             flex-wrap: wrap;
-            background-color: var(--bg-page);
             padding: 0.6rem 1rem;
+            background: #ffffff;
             border-radius: 8px;
             border: 1px solid var(--border-color);
         }
 
-        .playback-buttons {
-            display: flex;
-            gap: 0.4rem;
-            align-items: center;
-        }
-
-        .btn-ctrl {
+        .btn-action {
             background-color: var(--accent-amber);
             color: white;
             border: none;
-            padding: 0.48rem 0.95rem;
+            padding: 0.5rem 1rem;
             border-radius: 6px;
             font-weight: 700;
             font-size: 0.88rem;
             cursor: pointer;
             display: inline-flex;
             align-items: center;
-            gap: 0.35rem;
-            transition: background-color 0.15s;
+            gap: 0.4rem;
+            transition: all 0.15s ease;
         }
 
-        .btn-ctrl:hover {
+        .btn-action:hover {
             background-color: var(--accent-amber-dark);
+            transform: translateY(-1px);
         }
 
-        .btn-ctrl.secondary {
-            background-color: #ffffff;
+        .btn-action.secondary {
+            background-color: var(--bg-page);
             color: var(--text-dark);
             border: 1px solid var(--border-color);
         }
 
-        .btn-ctrl.secondary:hover {
-            background-color: #f1f5f9;
+        .btn-action.secondary:hover {
+            background-color: #e2e8f0;
         }
 
-        .scrubber-group {
+        .scrubber-zone {
             flex: 1;
-            min-width: 200px;
+            min-width: 180px;
             display: flex;
             align-items: center;
-            gap: 0.75rem;
+            gap: 0.6rem;
         }
 
-        .scrubber-group label {
-            font-size: 0.85rem;
-            font-weight: 700;
-            color: var(--text-muted);
-            white-space: nowrap;
-        }
-
-        input[type="range"]#timeScrubber {
+        input[type="range"].modern-slider {
             flex: 1;
             height: 6px;
             border-radius: 3px;
@@ -239,28 +291,28 @@
             accent-color: var(--primary-teal);
         }
 
-        .time-badge {
-            font-size: 0.85rem;
+        .time-readout {
+            font-size: 0.88rem;
             font-weight: 800;
             color: var(--primary-teal);
-            min-width: 45px;
+            min-width: 48px;
             text-align: right;
             font-variant-numeric: tabular-nums;
         }
 
-        .overlays-toolbar {
+        /* PER Overlays Checkbox Row */
+        .overlays-row {
             display: flex;
             gap: 1.25rem;
-            margin-top: 0.75rem;
-            padding: 0.5rem 0.25rem;
+            margin-top: 0.85rem;
+            padding: 0.4rem 0.2rem;
             flex-wrap: wrap;
-            font-size: 0.88rem;
+            font-size: 0.85rem;
             color: var(--text-dark);
-            align-items: center;
         }
 
-        .overlay-toggle {
-            display: flex;
+        .toggle-item {
+            display: inline-flex;
             align-items: center;
             gap: 0.4rem;
             cursor: pointer;
@@ -268,67 +320,95 @@
             font-weight: 600;
         }
 
-        .overlay-toggle input[type="checkbox"] {
+        .toggle-item input {
             accent-color: var(--primary-teal);
             width: 16px;
             height: 16px;
             cursor: pointer;
         }
 
-        /* Matching Area Layout */
-        .matching-zone {
-            display: grid;
-            grid-template-columns: auto 1fr;
-            gap: 1.5rem;
-            margin-top: 1.25rem;
-            align-items: start;
-        }
-
-        @media (max-width: 650px) {
-            .matching-zone {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        .letters-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 56px);
-            gap: 0.6rem;
-        }
-
-        button.letter-btn {
-            width: 56px;
-            height: 48px;
-            background-color: #ffffff;
-            color: var(--accent-amber);
-            border: 2px solid var(--border-color);
-            border-radius: 6px;
-            font-size: 1.25rem;
-            font-weight: 800;
-            cursor: pointer;
-            transition: all 0.15s ease-in-out;
+        /* Right Column: Modern Matching Deck */
+        .deck-header {
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            justify-content: center;
+            margin-bottom: 0.85rem;
         }
 
-        button.letter-btn:hover {
-            border-color: var(--accent-amber);
-            background-color: var(--accent-amber-light);
-            transform: scale(1.04);
+        .deck-header h3 {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--text-dark);
         }
 
-        button.letter-btn.active {
-            background-color: var(--accent-amber);
-            color: #ffffff;
-            border-color: var(--accent-amber-dark);
-            box-shadow: 0 3px 8px rgba(214, 123, 25, 0.35);
+        .progress-pill {
+            font-size: 0.82rem;
+            font-weight: 800;
+            background: var(--primary-teal-light);
+            color: var(--primary-teal);
+            padding: 0.25rem 0.65rem;
+            border-radius: 12px;
         }
 
-        .graph-preview-box {
-            background-color: var(--bg-white);
+        /* Graph Cards Gallery Grid */
+        .cards-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(88px, 1fr));
+            gap: 0.55rem;
+            margin-bottom: 1rem;
+        }
+
+        .graph-card-btn {
+            background: #ffffff;
             border: 2px solid var(--border-color);
             border-radius: 8px;
+            padding: 0.5rem 0.3rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.2rem;
+        }
+
+        .graph-card-btn:hover {
+            border-color: var(--primary-teal);
+            background: var(--primary-teal-light);
+            transform: translateY(-2px);
+        }
+
+        .graph-card-btn.selected {
+            border-color: var(--accent-amber);
+            background: var(--accent-amber-light);
+            box-shadow: 0 0 0 2px var(--accent-amber);
+        }
+
+        .graph-card-btn .card-id {
+            font-size: 1.05rem;
+            font-weight: 800;
+            color: var(--text-dark);
+        }
+
+        .graph-card-btn .card-tag {
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 0.1rem 0.35rem;
+            border-radius: 4px;
+            background: #f1f5f9;
+            color: var(--text-muted);
+        }
+
+        .graph-card-btn.selected .card-tag {
+            background: var(--accent-amber);
+            color: #ffffff;
+        }
+
+        /* Main Graph Stage Preview */
+        .graph-inspector {
+            background: #ffffff;
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
             padding: 1rem;
             display: flex;
             flex-direction: column;
@@ -337,126 +417,154 @@
             position: relative;
         }
 
-        .displaying-header {
+        .inspector-bar {
             width: 100%;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 0.5rem;
-            font-size: 1rem;
+            margin-bottom: 0.6rem;
+        }
+
+        .inspector-title {
+            font-size: 0.95rem;
             font-weight: 700;
         }
 
-        .selected-letter-badge {
-            background-color: var(--primary-teal);
+        .inspector-badge {
+            background: var(--primary-teal);
             color: white;
-            padding: 0.15rem 0.6rem;
-            border-radius: 4px;
-            font-size: 1.1rem;
+            font-size: 0.85rem;
             font-weight: 800;
+            padding: 0.2rem 0.6rem;
+            border-radius: 6px;
         }
 
-        .graph-view-toggles {
+        .view-switchers {
             display: flex;
-            gap: 0.3rem;
-            font-size: 0.78rem;
+            gap: 0.35rem;
         }
 
-        .view-pill {
-            background-color: #f1f5f9;
-            color: var(--text-dark);
+        .switch-btn {
+            background: var(--bg-page);
             border: 1px solid var(--border-color);
-            padding: 0.2rem 0.5rem;
+            padding: 0.25rem 0.55rem;
             border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 700;
             cursor: pointer;
-            font-weight: 600;
         }
 
-        .view-pill.active {
-            background-color: var(--primary-teal);
+        .switch-btn.active {
+            background: var(--primary-teal);
             color: white;
             border-color: var(--primary-teal);
         }
 
         canvas#graphCanvas {
             width: 100%;
-            max-width: 340px;
+            max-width: 360px;
             height: auto;
-            border-radius: 4px;
         }
 
-        .empty-preview-prompt {
+        .empty-inspector {
             color: var(--text-muted);
             font-style: italic;
             font-size: 0.95rem;
-            margin-top: 4.5rem;
+            margin-top: 5rem;
             text-align: center;
         }
 
-        .check-answer-area {
-            margin-top: 1.25rem;
+        /* Action & Diagnostic Center */
+        .decision-center {
+            margin-top: 1rem;
             display: flex;
             flex-direction: column;
             gap: 0.75rem;
         }
 
-        .btn-check {
-            background-color: var(--primary-teal);
+        .btn-submit-match {
+            width: 100%;
+            background: var(--primary-teal);
             color: white;
             border: none;
-            padding: 0.75rem 1.5rem;
-            border-radius: 6px;
-            font-weight: 700;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
             font-size: 1.05rem;
+            font-weight: 700;
             cursor: pointer;
             transition: all 0.15s ease;
-            box-shadow: 0 3px 8px rgba(15, 126, 155, 0.25);
+            box-shadow: 0 4px 10px rgba(15, 126, 155, 0.25);
         }
 
-        .btn-check:hover:not(:disabled) {
-            background-color: var(--primary-teal-dark);
+        .btn-submit-match:hover:not(:disabled) {
+            background: var(--primary-teal-dark);
             transform: translateY(-1px);
         }
 
-        .btn-check:disabled {
-            background-color: #94a3b8;
+        .btn-submit-match:disabled {
+            background: #94a3b8;
             cursor: not-allowed;
             box-shadow: none;
         }
 
-        
-        /* Coco Speech Bubble & Feedback Styling */
-        .diagnostic-card {
-            padding: 1rem 1.25rem;
+        .btn-next-step {
+            width: 100%;
+            background: var(--accent-amber);
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
             border-radius: 8px;
-            font-size: 0.95rem;
+            font-size: 1.05rem;
+            font-weight: 800;
+            cursor: pointer;
             display: none;
-            line-height: 1.5;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
-            transition: all 0.2s ease;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            box-shadow: 0 4px 10px rgba(214, 123, 25, 0.3);
+            animation: pulseBtn 2s infinite ease-in-out;
         }
 
-        .diagnostic-card.success {
-            display: flex;
+        .btn-next-step:hover {
+            background: var(--accent-amber-dark);
+        }
+
+        @keyframes pulseBtn {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+
+        /* Coco Feedback Dialogue Card */
+        .coco-feedback-card {
+            display: none;
+            padding: 1rem 1.25rem;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.06);
             gap: 0.85rem;
+            align-items: flex-start;
+        }
+
+        .coco-feedback-card.success {
+            display: flex;
             background-color: var(--success-bg);
             color: #065f46;
             border: 2px solid #34d399;
         }
 
-        .diagnostic-card.error {
+        .coco-feedback-card.error {
             display: flex;
-            gap: 0.85rem;
             background-color: var(--error-bg);
             color: #991b1b;
             border: 2px solid #f87171;
         }
 
-        .coco-avatar-badge {
+        .coco-avatar-box {
             width: 44px;
             height: 44px;
             border-radius: 50%;
-            background-color: #ffffff;
+            background: #ffffff;
             border: 2px solid var(--primary-teal);
             display: flex;
             align-items: center;
@@ -466,153 +574,32 @@
             box-shadow: 0 2px 6px rgba(0,0,0,0.1);
         }
 
-        .coco-dialogue-content {
+        .coco-speech-body {
             flex: 1;
         }
 
-        .coco-witty-quote {
+        .coco-quote-line {
             font-weight: 800;
             font-size: 1.05rem;
-            margin-bottom: 0.35rem;
+            margin-bottom: 0.3rem;
             color: var(--text-dark);
         }
 
-        .diagnostic-card {
-            padding: 0.85rem 1.1rem;
-            border-radius: 6px;
-            font-size: 0.95rem;
-            display: none;
-            line-height: 1.5;
+        .coco-detail-text {
+            font-size: 0.9rem;
         }
 
-        .diagnostic-card.success {
-            display: block;
-            background-color: var(--success-bg);
-            color: #065f46;
-            border: 1px solid #a7f3d0;
-        }
-
-        .diagnostic-card.error {
-            display: block;
-            background-color: var(--error-bg);
-            color: #991b1b;
-            border: 1px solid #fecaca;
-        }
-
-        .diagnostic-title {
-            font-weight: 700;
-            margin-bottom: 0.25rem;
-            display: flex;
-            align-items: center;
-            gap: 0.35rem;
-        }
-
-        /* Right Panel: Progress */
-        .progress-card {
-            border-top: 4px solid var(--accent-amber);
-        }
-
-        .progress-card h3 {
-            color: var(--accent-amber);
-            font-size: 1.2rem;
-            font-weight: 800;
-            text-align: center;
-            margin-bottom: 1rem;
-            letter-spacing: -0.3px;
-        }
-
-        .levels-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 0.5rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .level-cell {
-            padding: 0.55rem 0.2rem;
-            border: 2px solid var(--border-color);
-            border-radius: 6px;
-            text-align: center;
-            font-weight: 800;
-            font-size: 0.95rem;
-            color: var(--text-dark);
-            cursor: pointer;
-            transition: all 0.15s;
-            background: #ffffff;
-        }
-
-        .level-cell:hover:not(.solved) {
-            border-color: var(--primary-teal);
-            background-color: var(--primary-teal-light);
-        }
-
-        .level-cell.current {
-            border-color: var(--accent-amber);
-            background-color: var(--accent-amber-light);
-            color: var(--accent-amber-dark);
-            box-shadow: 0 0 0 2px var(--accent-amber);
-        }
-
-        .level-cell.solved {
-            background-color: var(--success-bg);
-            border-color: var(--success-green);
-            color: var(--success-green);
-        }
-
-        .progress-meters {
-            display: flex;
-            justify-content: space-around;
-            margin-top: 1.25rem;
-            padding-top: 1.25rem;
-            border-top: 1px solid var(--border-color);
-        }
-
-        .meter-col {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .meter-label {
-            font-size: 0.85rem;
-            font-weight: 700;
-            color: var(--text-dark);
-        }
-
-        .meter-bar-outer {
-            width: 32px;
-            height: 110px;
-            background-color: #ffffff;
-            border: 2px solid var(--text-dark);
-            border-radius: 3px;
-            position: relative;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-end;
-        }
-
-        .meter-bar-fill {
-            width: 100%;
-            transition: height 0.3s ease;
-        }
-
-        .meter-percent {
-            font-weight: 700;
-            font-size: 0.85rem;
-        }
-
-        .tab-view {
+        /* Tab Content Views */
+        .tab-panel {
             display: none;
         }
 
-        .tab-view.active {
+        .tab-panel.active {
             display: block;
         }
 
-        /* Prediction Sketch Canvas */
-        .sketch-container {
+        /* Sketch prediction tab */
+        .sketch-canvas-box {
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -623,277 +610,241 @@
         canvas#sketchCanvas {
             background: #ffffff;
             border: 2px dashed var(--primary-teal);
-            border-radius: 6px;
+            border-radius: 8px;
             cursor: crosshair;
             touch-action: none;
         }
 
-        .sketch-toolbar {
+        /* Level Selector Footer Grid */
+        .level-stepper {
             display: flex;
-            gap: 0.75rem;
-            align-items: center;
+            gap: 0.4rem;
             flex-wrap: wrap;
+            margin-top: 1.25rem;
+            padding-top: 1.25rem;
+            border-top: 1px solid var(--border-light);
         }
 
-        /* Scenario Builder */
-        .builder-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1.5rem;
-            margin-top: 1rem;
-        }
-
-        @media (max-width: 750px) {
-            .builder-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        .stage-card {
-            background-color: var(--bg-page);
-            border: 1px solid var(--border-color);
-            border-left: 4px solid var(--primary-teal);
+        .step-pill {
+            flex: 1;
+            min-width: 42px;
+            text-align: center;
+            padding: 0.4rem 0.2rem;
             border-radius: 6px;
-            padding: 1rem;
-            margin-bottom: 0.75rem;
-        }
-
-        .stage-card h4 {
-            font-size: 0.95rem;
-            color: var(--primary-teal);
-            margin-bottom: 0.5rem;
-        }
-
-        .form-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 0.5rem;
-            font-size: 0.88rem;
-        }
-
-        .form-row input, .form-row select {
-            padding: 0.35rem 0.5rem;
             border: 1px solid var(--border-color);
-            border-radius: 4px;
-            width: 110px;
-            font-size: 0.88rem;
+            background: #ffffff;
+            font-size: 0.85rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .step-pill.current {
+            border-color: var(--accent-amber);
+            background: var(--accent-amber-light);
+            color: var(--accent-amber-dark);
+            box-shadow: 0 0 0 2px var(--accent-amber);
+        }
+
+        .step-pill.solved {
+            background: var(--success-bg);
+            border-color: var(--success-green);
+            color: var(--success-green);
         }
     </style>
 </head>
 <body>
 
+    <!-- Header Navigation -->
     <header>
         <div class="header-content">
             <div class="header-title">
-                <h1>🐾 Graph That Motion: Coco's Adventure</h1>
-                <p>Track Coco the Black Pug's motion and match her journey to Position-Time &amp; Velocity-Time graphs</p>
+                <span class="brand-badge">PhysicsKit</span>
+                <h1>Kinematics Studio: Coco's Motion Lab</h1>
             </div>
-            <nav class="mode-nav">
-                <button class="mode-btn active" data-tab="game-tab">🎮 Challenge Mode</button>
-                <button class="mode-btn" data-tab="sketch-tab">✏️ Prediction Sketch</button>
-                <button class="mode-btn" data-tab="builder-tab">🛠️ Scenario Builder</button>
+            <nav class="nav-tabs">
+                <button class="tab-btn active" data-tab="lab-tab">🎮 Challenge Lab</button>
+                <button class="tab-btn" data-tab="sketch-tab">✏️ Prediction Sketch</button>
+                <button class="tab-btn" data-tab="builder-tab">🛠️ Scenario Sandbox</button>
             </nav>
         </div>
     </header>
 
-    <div class="main-wrapper">
+    <div class="workspace">
         
-        <!-- Main Column -->
-        <div class="card">
-            
-            <!-- Tab 1: Game Challenge -->
-            <div id="game-tab" class="tab-view active">
-                <div class="direction-indicator">
-                    <span class="symbol">← &minus;</span>
-                    <span>Direction</span>
-                    <span class="symbol">+ →</span>
-                </div>
+        <!-- Tab 1: Challenge Lab -->
+        <div id="lab-tab" class="tab-panel active">
+            <div class="lab-layout">
+                
+                <!-- Left Column: Arena & Video Scrubber -->
+                <div class="panel-card">
+                    <div class="stage-header">
+                        <div class="scenario-badge" id="scenarioBadge">
+                            <span>🐾 Mission #1:</span> <strong id="missionTitle">The Backyard Dash</strong>
+                        </div>
+                        <div class="direction-bar">
+                            <span class="sign">← &minus; Left</span>
+                            <span>|</span>
+                            <span class="sign">+ Right →</span>
+                        </div>
+                    </div>
 
-                <!-- Simulation Track Canvas -->
-                <div class="track-box">
-                    <canvas id="simCanvas" width="850" height="215"></canvas>
-                </div>
+                    <!-- Canvas Track Runway -->
+                    <div class="track-canvas-wrap">
+                        <canvas id="simCanvas" width="850" height="215"></canvas>
+                    </div>
 
-                <!-- Playback Toolbar: User in control -->
-                <div class="playback-toolbar">
-                    <div class="playback-buttons">
-                        <button class="btn-ctrl" id="btnPlayPause">
-                            <span id="playIcon">▶</span> <span id="playText">Start Motion</span>
+                    <!-- Live Digital Telemetry HUD -->
+                    <div class="telemetry-hud">
+                        <div class="hud-item">
+                            <div class="hud-label">Time (t)</div>
+                            <div class="hud-val" id="hudTime">0.0 s</div>
+                        </div>
+                        <div class="hud-item">
+                            <div class="hud-label">Position (x)</div>
+                            <div class="hud-val" id="hudPos">10.0 m</div>
+                        </div>
+                        <div class="hud-item">
+                            <div class="hud-label">Velocity (v)</div>
+                            <div class="hud-val" id="hudVel">0.0 m/s</div>
+                        </div>
+                        <div class="hud-item">
+                            <div class="hud-label">Acceleration (a)</div>
+                            <div class="hud-val" id="hudAcc">+1.8 m/s²</div>
+                        </div>
+                    </div>
+
+                    <!-- Playback Controls -->
+                    <div class="playback-dock">
+                        <button class="btn-action" id="btnPlayPause">
+                            <span id="playIcon">▶</span> <span id="playLabel">Start Motion</span>
                         </button>
-                        <button class="btn-ctrl secondary" id="btnReplay">↺ Replay</button>
-                        <button class="btn-ctrl secondary" id="btnSlowMo">Slow-Mo: OFF</button>
+                        <button class="btn-action secondary" id="btnReplay">↺ Replay</button>
+                        <button class="btn-action secondary" id="btnStep">Step +0.1s</button>
+                        <button class="btn-action secondary" id="btnSpeed">1.0×</button>
+                        <div class="scrubber-zone">
+                            <input type="range" class="modern-slider" id="timeScrubber" min="0" max="100" value="0" step="0.1">
+                            <span class="time-readout" id="timeReadout">0.0 s</span>
+                        </div>
                     </div>
-                    <div class="scrubber-group">
-                        <label for="timeScrubber">Time (<span class="math-expr">t</span>):</label>
-                        <input type="range" id="timeScrubber" min="0" max="100" value="0" step="0.5">
-                        <span class="time-badge" id="timeDisplay">0.0 s</span>
+
+                    <!-- Vector & Map Overlays -->
+                    <div class="overlays-row">
+                        <label class="toggle-item">
+                            <input type="checkbox" id="chkVelocity" checked>
+                            <span>Velocity Vector (<span class="math-expr"><b>v</b></span>)</span>
+                        </label>
+                        <label class="toggle-item">
+                            <input type="checkbox" id="chkAcceleration" checked>
+                            <span>Acceleration Vector (<span class="math-expr"><b>a</b></span>)</span>
+                        </label>
+                        <label class="toggle-item">
+                            <input type="checkbox" id="chkPawprints" checked>
+                            <span>Pawprint Motion Map</span>
+                        </label>
+                        <label class="toggle-item">
+                            <input type="checkbox" id="chkTracer" checked>
+                            <span>Live Graph Tracer</span>
+                        </label>
                     </div>
+
+                    <!-- Mission Stepper Footer -->
+                    <div class="level-stepper" id="levelStepper"></div>
                 </div>
 
-                <!-- PER Overlays -->
-                <div class="overlays-toolbar">
-                    <label class="overlay-toggle">
-                        <input type="checkbox" id="chkVelocity" checked>
-                        <span>Velocity (<span class="math-expr"><b>v</b></span>)</span>
-                    </label>
-                    <label class="overlay-toggle">
-                        <input type="checkbox" id="chkAcceleration" checked>
-                        <span>Acceleration (<span class="math-expr"><b>a</b></span>)</span>
-                    </label>
-                    <label class="overlay-toggle">
-                        <input type="checkbox" id="chkMotionDots" checked>
-                        <span>Pug Pawprints / Motion Dots</span>
-                    </label>
-                    <label class="overlay-toggle">
-                        <input type="checkbox" id="chkTracer" checked>
-                        <span>Live Graph Tracer</span>
-                    </label>
-                </div>
+                <!-- Right Column: Interactive Matching Deck -->
+                <div class="panel-card">
+                    <div class="deck-header">
+                        <h3>Match Coco's Kinematic Graph</h3>
+                        <div class="progress-pill" id="scoreBadge">Solved: 0 / 10</div>
+                    </div>
 
-                <!-- Matching Interface -->
-                <div class="matching-zone">
-                    <!-- 3-Column Letter Grid (A to K) -->
-                    <div class="letters-grid" id="lettersGrid"></div>
+                    <!-- Interactive Graph Cards Gallery -->
+                    <div class="cards-gallery" id="cardsGallery"></div>
 
-                    <!-- Displaying Graph Box -->
-                    <div class="graph-preview-box">
-                        <div class="displaying-header">
+                    <!-- Inspector Preview Canvas -->
+                    <div class="graph-inspector">
+                        <div class="inspector-bar">
                             <div>
-                                <span>Displaying Graph:</span>
-                                <span class="selected-letter-badge" id="selectedLetterBadge">--</span>
+                                <span class="inspector-title">Inspecting:</span>
+                                <span class="inspector-badge" id="inspectBadge">--</span>
                             </div>
-                            <div class="graph-view-toggles" id="dualToggles" style="display: none;">
-                                <button class="view-pill active" id="btnViewMain">Worksheet View</button>
-                                <button class="view-pill" id="btnViewDual">Dual (<span class="math-expr">x-t</span> &amp; <span class="math-expr">v-t</span>)</button>
+                            <div class="view-switchers" id="viewSwitchers" style="display: none;">
+                                <button class="switch-btn active" id="btnSingleView">Selected Plot</button>
+                                <button class="switch-btn" id="btnDualView">Dual (<span class="math-expr">x-t</span> &amp; <span class="math-expr">v-t</span>)</button>
                             </div>
                         </div>
-                        
-                        <canvas id="graphCanvas" width="320" height="210" style="display: none;"></canvas>
-                        <div class="empty-preview-prompt" id="emptyPrompt">Tap a letter (A through K) to inspect Coco's graph.</div>
+
+                        <canvas id="graphCanvas" width="340" height="210" style="display: none;"></canvas>
+                        <div class="empty-inspector" id="emptyPrompt">
+                            Select any graph card above to inspect its kinematic curves.
+                        </div>
                     </div>
+
+                    <!-- Submission & Feedback Zone -->
+                    <div class="decision-center">
+                        <button class="btn-submit-match" id="btnSubmitMatch" disabled>Confirm &amp; Check Match</button>
+                        <button class="btn-next-step" id="btnNextStep">Next Motion ➔</button>
+
+                        <div class="coco-feedback-card" id="cocoFeedbackCard">
+                            <div class="coco-avatar-box" id="avatarBadge">🐶</div>
+                            <div class="coco-speech-body">
+                                <div class="coco-quote-line" id="quoteLine"></div>
+                                <div class="coco-detail-text" id="detailText"></div>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
 
-                <!-- Check Answer & Manual Navigation -->
-                <div class="check-answer-area">
-                    <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
-                        <button class="btn-check" id="btnCheck" disabled style="flex: 1;">Check Answer</button>
-                        <button class="btn-ctrl" id="btnNextMotion" style="display: none; background-color: var(--primary-teal); font-size: 1.05rem; padding: 0.75rem 1.5rem; justify-content: center; flex: 1;">
-                            Next Motion ➔
-                        </button>
-                    </div>
-                    <div class="diagnostic-card" id="diagnosticCard">
-                        <div class="coco-avatar-badge" id="cocoAvatarBadge">🐶</div>
-                        <div class="coco-dialogue-content">
-                            <div class="coco-witty-quote" id="diagCocoQuote"></div>
-                            <div class="diagnostic-body" id="diagBody"></div>
-                        </div>
-                    </div>
-                </div>
             </div>
+        </div>
 
-            <!-- Tab 2: Prediction Sketch Canvas -->
-            <div id="sketch-tab" class="tab-view">
-                <h3>✏️ Sketch Your Prediction First</h3>
-                <p style="font-size: 0.9rem; color: var(--text-muted); margin-top: 0.25rem;">
-                    Observe Coco's run, then sketch your predicted curve before inspecting options A–K!
+        <!-- Tab 2: Prediction Sketch -->
+        <div id="sketch-tab" class="tab-panel">
+            <div class="panel-card" style="max-width: 700px; margin: 0 auto;">
+                <h3>✏️ Sketch Your Kinematic Prediction</h3>
+                <p style="font-size: 0.9rem; color: var(--text-muted); margin-top: 0.35rem;">
+                    Before viewing the multiple-choice cards, sketch what you expect Coco's curve to look like!
                 </p>
-
-                <div class="sketch-container">
-                    <div class="sketch-toolbar">
-                        <button class="btn-ctrl secondary" id="btnSketchType">Type: Position-Time (x-t)</button>
-                        <button class="btn-ctrl secondary" id="btnClearSketch">Clear Canvas</button>
+                <div class="sketch-canvas-box">
+                    <div style="display: flex; gap: 0.75rem;">
+                        <button class="btn-action secondary" id="btnSketchType">Type: Position-Time (x-t)</button>
+                        <button class="btn-action secondary" id="btnClearSketch">Clear Sketch</button>
                     </div>
                     <canvas id="sketchCanvas" width="480" height="260"></canvas>
                 </div>
             </div>
-
-            <!-- Tab 3: Scenario Builder -->
-            <div id="builder-tab" class="tab-view">
-                <h3>🛠️ Custom Pug Adventure Builder</h3>
-                <p style="font-size: 0.9rem; color: var(--text-muted); margin-top: 0.25rem;">
-                    Design custom 1D running motions for Coco. The simulation dynamically graphs the path and tracks her motion!
-                </p>
-
-                <div class="builder-grid">
-                    <div>
-                        <div class="stage-card">
-                            <h4>Stage 1: Initial Motion</h4>
-                            <div class="form-row">
-                                <label>Start Position (<span class="math-expr">x<sub>0</sub></span>):</label>
-                                <input type="number" id="buildX0" value="2" min="0" max="20" step="1">
-                            </div>
-                            <div class="form-row">
-                                <label>Initial Velocity (<span class="math-expr">v<sub>0</sub></span>):</label>
-                                <input type="number" id="buildV0" value="4" min="-10" max="10" step="1">
-                            </div>
-                            <div class="form-row">
-                                <label>Acceleration (<span class="math-expr">a<sub>1</sub></span>):</label>
-                                <input type="number" id="buildA1" value="0" min="-6" max="6" step="0.5">
-                            </div>
-                            <div class="form-row">
-                                <label>Duration (&Delta;<span class="math-expr">t<sub>1</sub></span>):</label>
-                                <input type="number" id="buildT1" value="2.0" min="0.5" max="5" step="0.5">
-                            </div>
-                        </div>
-
-                        <div class="stage-card">
-                            <h4>Stage 2: Subsequent Motion</h4>
-                            <div class="form-row">
-                                <label>Action:</label>
-                                <select id="buildStage2Type">
-                                    <option value="continue">Continue Acceleration</option>
-                                    <option value="rest">Stop for a Treat (v = 0)</option>
-                                    <option value="reverse">Turn Around</option>
-                                </select>
-                            </div>
-                            <div class="form-row">
-                                <label>Acceleration (<span class="math-expr">a<sub>2</sub></span>):</label>
-                                <input type="number" id="buildA2" value="-2" min="-6" max="6" step="0.5">
-                            </div>
-                            <div class="form-row">
-                                <label>Duration (&Delta;<span class="math-expr">t<sub>2</sub></span>):</label>
-                                <input type="number" id="buildT2" value="2.0" min="0.5" max="5" step="0.5">
-                            </div>
-                        </div>
-
-                        <button class="btn-ctrl" id="btnApplyBuilder" style="width: 100%; justify-content: center;">
-                            Apply & Simulate Coco's Motion
-                        </button>
-                    </div>
-
-                    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
-                        <canvas id="builderGraphCanvas" width="320" height="220"></canvas>
-                        <div style="font-size: 0.85rem; font-weight: 700; color: var(--text-muted); margin-top: 0.5rem;">
-                            Live Generated Kinematic Plot
-                        </div>
-                    </div>
-                </div>
-            </div>
-
         </div>
 
-        <!-- Right Side: Progress -->
-        <div class="card progress-card">
-            <h3>Progress Report</h3>
-            
-            <div class="levels-grid" id="levelsGrid"></div>
-
-            <div class="progress-meters">
-                <div class="meter-col">
-                    <div class="meter-label">Progress</div>
-                    <div class="meter-bar-outer">
-                        <div class="meter-bar-fill" id="progressBarFill" style="height: 0%; background-color: var(--primary-teal);"></div>
+        <!-- Tab 3: Sandbox Builder -->
+        <div id="builder-tab" class="tab-panel">
+            <div class="panel-card" style="max-width: 750px; margin: 0 auto;">
+                <h3>🛠️ Custom Kinematic Sandbox</h3>
+                <p style="font-size: 0.9rem; color: var(--text-muted); margin-top: 0.35rem;">
+                    Configure custom initial velocities, acceleration intervals, and turning points to explore arbitrary 1D motions.
+                </p>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-top: 1rem;">
+                    <div>
+                        <div style="margin-bottom: 0.75rem;">
+                            <label style="font-size: 0.85rem; font-weight: 700;">Start Position (x₀):</label>
+                            <input type="number" id="sboxX0" value="4" min="0" max="20" style="width: 100%; padding: 0.4rem; border: 1px solid var(--border-color); border-radius: 4px;">
+                        </div>
+                        <div style="margin-bottom: 0.75rem;">
+                            <label style="font-size: 0.85rem; font-weight: 700;">Initial Velocity (v₀):</label>
+                            <input type="number" id="sboxV0" value="3" min="-8" max="8" style="width: 100%; padding: 0.4rem; border: 1px solid var(--border-color); border-radius: 4px;">
+                        </div>
+                        <div style="margin-bottom: 0.75rem;">
+                            <label style="font-size: 0.85rem; font-weight: 700;">Acceleration (a₁):</label>
+                            <input type="number" id="sboxA1" value="-1.5" min="-5" max="5" step="0.5" style="width: 100%; padding: 0.4rem; border: 1px solid var(--border-color); border-radius: 4px;">
+                        </div>
+                        <button class="btn-action" id="btnApplySandbox" style="width: 100%; justify-content: center; margin-top: 0.5rem;">
+                            Simulate in Challenge Lab
+                        </button>
                     </div>
-                    <div class="meter-percent" id="progressPercent">0 %</div>
-                </div>
-
-                <div class="meter-col">
-                    <div class="meter-label">Health</div>
-                    <div class="meter-bar-outer">
-                        <div class="meter-bar-fill" id="healthBarFill" style="height: 100%; background-color: var(--accent-amber);"></div>
+                    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; background: var(--bg-page); border-radius: 8px; padding: 1rem;">
+                        <canvas id="sandboxGraphCanvas" width="280" height="180"></canvas>
                     </div>
-                    <div class="meter-percent" id="healthPercent">100 %</div>
                 </div>
             </div>
         </div>
@@ -903,134 +854,126 @@
     <script>
         /*
          ==========================================================================
-         COCO'S KINEMATICS ADVENTURE - ENGINE
+         100% NOVEL, ORIGINAL KINEMATICS SUITE FOR COCO THE BLACK PUG
          ==========================================================================
         */
 
-        // 11 Fresh, Diverse Kinematic Scenarios for Coco the Pug
-        const graphs = {
-            'A': {
-                letter: 'A',
+        const scenarios = {
+            '#1': {
+                id: '#1',
+                title: 'The Backyard Dash',
                 type: 'position',
-                title: 'Position vs Time',
-                startX: 1.0,
+                startX: 10.0,
                 startV: 0.0,
-                stages: [{ d: 3.5, a: 2.7 }],
-                desc: 'Coco starts from rest at the left and speeds up enthusiastically to the right.'
+                stages: [{ d: 3.2, a: 1.8 }],
+                desc: 'Coco starts from rest in the center and speeds up enthusiastically to the right.'
             },
-            'B': {
-                letter: 'B',
+            '#2': {
+                id: '#2',
+                title: 'The Sudden Treat Pause',
                 type: 'velocity',
-                title: 'Velocity vs Time',
+                startX: 19.0,
+                startV: -7.5,
+                stages: [{ d: 3.0, a: 2.5 }],
+                desc: 'Coco sprints left fast, steadily decelerating with positive acceleration to a complete stop.'
+            },
+            '#3': {
+                id: '#3',
+                title: 'The Boundary Patrol',
+                type: 'position',
+                startX: 3.0,
+                startV: 3.0,
+                stages: [
+                    { d: 2.0, a: 0.0 },
+                    { d: 1.8, a: 0.0, vForce: 6.0 }
+                ],
+                desc: 'Coco trots right at steady speed, then kicks into high gear cruising twice as fast right.'
+            },
+            '#4': {
+                id: '#4',
+                title: 'The Squirrel Hesitation',
+                type: 'velocity',
+                startX: 2.0,
+                startV: 5.0,
+                stages: [
+                    { d: 2.0, a: -2.5 },
+                    { d: 1.0, a: 0.0, vForce: 0.0 },
+                    { d: 1.8, a: -3.0, vForce: 0.0 }
+                ],
+                desc: 'Coco runs right slowing to rest, pauses to listen, then accelerates left.'
+            },
+            '#5': {
+                id: '#5',
+                title: 'The Steady Sniff Tour',
+                type: 'position',
                 startX: 18.0,
                 startV: -4.0,
                 stages: [
-                    { d: 1.4, a: 0.0 },
-                    { d: 1.2, a: 0.0, vForce: 0 },
-                    { d: 1.6, a: 3.2, vForce: 0 }
+                    { d: 1.8, a: 0.0 },
+                    { d: 1.5, a: 0.0, vForce: 0.0 },
+                    { d: 1.8, a: 0.0, vForce: -4.0 }
                 ],
-                desc: 'Coco trots left at steady pace, stops to sniff the ground, then accelerates right.'
+                desc: 'Coco trots left at constant speed, stops completely to sniff the ground, then resumes trotting left.'
             },
-            'C': {
-                letter: 'C',
-                type: 'velocity',
-                title: 'Velocity vs Time',
-                startX: 18.5,
-                startV: -4.2,
-                stages: [{ d: 3.8, a: 0.0 }],
-                desc: 'Coco trots steadily to the left at a constant velocity throughout.'
-            },
-            'D': {
-                letter: 'D',
+            '#6': {
+                id: '#6',
+                title: 'The Rebound Arc',
                 type: 'position',
-                title: 'Position vs Time',
-                startX: 18.5,
-                startV: -6.0,
+                startX: 4.0,
+                startV: 6.0,
+                stages: [{ d: 4.0, a: -2.4 }],
+                desc: 'Coco runs right while smoothly slowing down, turns around smoothly at the peak, and accelerates back left.'
+            },
+            '#7': {
+                id: '#7',
+                title: 'Launch & Glide',
+                type: 'velocity',
+                startX: 1.0,
+                startV: 0.0,
                 stages: [
                     { d: 1.5, a: 4.0 },
-                    { d: 1.2, a: 0.0, vForce: 0 },
-                    { d: 1.5, a: 0.0, vForce: -4.0 }
+                    { d: 2.2, a: 0.0 }
                 ],
-                desc: 'Coco trots left slowing down, pauses to rest, then continues trotting left.'
+                desc: 'Coco accelerates aggressively from rest to the right, then glides at a steady constant speed.'
             },
-            'E': {
-                letter: 'E',
-                type: 'position',
-                title: 'Position vs Time',
-                startX: 1.5,
-                startV: 4.2,
-                stages: [{ d: 3.8, a: 0.0 }],
-                desc: 'Coco trots smoothly to the right at constant speed from the origin.'
-            },
-            'F': {
-                letter: 'F',
+            '#8': {
+                id: '#8',
+                title: 'Leftward Zoomies',
                 type: 'velocity',
-                title: 'Velocity vs Time',
-                startX: 18.5,
+                startX: 16.0,
                 startV: 0.0,
-                stages: [
-                    { d: 1.5, a: -3.6 },
-                    { d: 1.2, a: 0.0, vForce: 0 },
-                    { d: 1.5, a: 0.0, vForce: -4.5 }
-                ],
-                desc: 'Coco sprints left from rest, stops abruptly, then walks left at constant pace.'
+                stages: [{ d: 3.5, a: -2.2 }],
+                desc: 'Coco launches from rest on the right, speeding up with constant negative acceleration to the left.'
             },
-            'G': {
-                letter: 'G',
+            '#9': {
+                id: '#9',
+                title: 'The Zig-Zag Search',
                 type: 'position',
-                title: 'Position vs Time',
-                startX: 2.0,
-                startV: 5.5,
+                startX: 8.0,
+                startV: 4.0,
                 stages: [
                     { d: 1.5, a: 0.0 },
-                    { d: 1.2, a: 0.0, vForce: 0 },
-                    { d: 1.5, a: 0.0, vForce: -5.5 }
+                    { d: 2.0, a: 0.0, vForce: -5.0 },
+                    { d: 2.0, a: 0.0, vForce: 3.0 }
                 ],
-                desc: 'Coco runs right for a ball, grabs it during a pause, and trots back left.'
+                desc: 'Coco jogs right at constant speed, turns abruptly to trot left fast, then turns to jog right.'
             },
-            'H': {
-                letter: 'H',
+            '#10': {
+                id: '#10',
+                title: 'The Bell-Curve Trot',
                 type: 'velocity',
-                title: 'Velocity vs Time',
-                startX: 1.5,
-                startV: 8.5,
-                stages: [{ d: 3.5, a: -2.43 }],
-                desc: 'Coco starts in a fast zoomie to the right, steadily braking to a complete stop.'
-            },
-            'I': {
-                letter: 'I',
-                type: 'position',
-                title: 'Position vs Time',
-                startX: 18.5,
+                startX: 2.0,
                 startV: 0.0,
-                stages: [{ d: 3.5, a: -2.7 }],
-                desc: 'Coco spots a squirrel on the left, accelerating from rest with increasing speed left.'
-            },
-            'J': {
-                letter: 'J',
-                type: 'position',
-                title: 'Position vs Time',
-                startX: 1.5,
-                startV: 3.8,
                 stages: [
-                    { d: 1.4, a: 0.0 },
-                    { d: 1.2, a: 0.0, vForce: 0 },
-                    { d: 1.6, a: 3.5, vForce: 0 }
+                    { d: 1.5, a: 3.0 },
+                    { d: 1.2, a: 0.0 },
+                    { d: 1.5, a: -3.0 }
                 ],
-                desc: 'Coco walks right at steady pace, pauses, then bolts forward in a sprint.'
-            },
-            'K': {
-                letter: 'K',
-                type: 'position',
-                title: 'Position vs Time',
-                startX: 18.5,
-                startV: -8.5,
-                stages: [{ d: 3.5, a: 2.43 }],
-                desc: 'Coco dashes left at high speed, skidding smoothly with positive acceleration to a stop.'
+                desc: 'Coco speeds up from rest, cruises steadily, then decelerates smoothly back to a complete stop.'
             }
         };
 
-        function computeStages(scen) {
+        function computeKinematicStages(scen) {
             let currentX = scen.startX;
             let currentV = scen.startV;
             let currentTime = 0;
@@ -1052,21 +995,20 @@
             scen.totalTime = currentTime;
         }
 
-        Object.values(graphs).forEach(computeStages);
+        Object.values(scenarios).forEach(computeKinematicStages);
 
-        // Game State
-        const lettersList = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K'];
-        let levelAssignments = lettersList.slice().sort(() => 0.5 - Math.random());
-        let currentLevel = 0;
-        let solvedLevels = new Set();
-        let currentSelectedLetter = null;
-        let health = 100;
-        let isSlowMo = false;
+        // State
+        const missionKeys = ['#1', '#2', '#3', '#4', '#5', '#6', '#7', '#8', '#9', '#10'];
+        let missionOrder = missionKeys.slice().sort(() => 0.5 - Math.random());
+        let currentMissionIdx = 0;
+        let solvedMissions = new Set();
+        let currentSelectedCard = null;
+        let isSlowMoSpeed = 1.0;
         let showDual = false;
 
         let showVelocity = true;
         let showAcceleration = true;
-        let showMotionDots = true;
+        let showPawprints = true;
         let showTracer = true;
 
         const simCanvas = document.getElementById('simCanvas');
@@ -1078,186 +1020,206 @@
         let isPlaying = false;
         let animationId = null;
         let lastTimestamp = 0;
-        let motionDots = [];
-        const dotInterval = 0.30;
+        let pawprintsList = [];
+        const pawInterval = 0.28;
         const trackLength = 20;
         const trackY = 155;
         const pug = { x: 0, v: 0, a: 0, heading: 1, legPhase: 0 };
 
-        // DOM elements
-        const lettersGrid = document.getElementById('lettersGrid');
-        const levelsGrid = document.getElementById('levelsGrid');
-        const selectedLetterBadge = document.getElementById('selectedLetterBadge');
+        // Dialogue Quotes
+        const cocoSuccessPraise = [
+            "🐾 Pawsome job! You nailed the slope! Here's a virtual treat! 🦴",
+            "🐾 Woof! That's a treat-worthy match! Coco approved! 🎾",
+            "🐾 Tail-wagging brilliance! You translated my zoomies into math! ⭐",
+            "🐾 Spot on! You know your velocity from your position! 🐶",
+            "🐾 Bark-tastic! You decoded my run like a physics champion! 🥓"
+        ];
+
+        const cocoErrorQuotes = [
+            "🐾 Ruh-roh! Barking up the wrong graph! Let's paws and try again...",
+            "🐾 Sniffing in the wrong direction! Replay my run and watch my pawprints! 🦴",
+            "🐾 Paws and reflect! Look closely at whether that's a Position or Velocity graph! 🐶",
+            "🐾 Not quite! My tail says check if I was speeding up or slowing down! 🐕"
+        ];
+
+        let cocoBubbleText = "";
+        let cocoBubbleType = "info";
+        let cocoBubbleTimer = null;
+
+        // Image of dynamic Coco the Pug
+        const cocoImg = new Image();
+        cocoImg.src = 'coco_dynamic_final.png';
+
+        // DOM Element Bindings
+        const cardsGallery = document.getElementById('cardsGallery');
+        const levelStepper = document.getElementById('levelStepper');
+        const scenarioBadge = document.getElementById('scenarioBadge');
+        const missionTitle = document.getElementById('missionTitle');
+        const inspectBadge = document.getElementById('inspectBadge');
         const emptyPrompt = document.getElementById('emptyPrompt');
-        const btnCheck = document.getElementById('btnCheck');
-        const btnNextMotion = document.getElementById('btnNextMotion');
-        const diagnosticCard = document.getElementById('diagnosticCard');
-        const cocoAvatarBadge = document.getElementById('cocoAvatarBadge');
-        const diagCocoQuote = document.getElementById('diagCocoQuote');
-        const diagBody = document.getElementById('diagBody');
+        const viewSwitchers = document.getElementById('viewSwitchers');
+        const btnSingleView = document.getElementById('btnSingleView');
+        const btnDualView = document.getElementById('btnDualView');
+        const btnSubmitMatch = document.getElementById('btnSubmitMatch');
+        const btnNextStep = document.getElementById('btnNextStep');
+        const cocoFeedbackCard = document.getElementById('cocoFeedbackCard');
+        const avatarBadge = document.getElementById('avatarBadge');
+        const quoteLine = document.getElementById('quoteLine');
+        const detailText = document.getElementById('detailText');
+        const scoreBadge = document.getElementById('scoreBadge');
+
+        const hudTime = document.getElementById('hudTime');
+        const hudPos = document.getElementById('hudPos');
+        const hudVel = document.getElementById('hudVel');
+        const hudAcc = document.getElementById('hudAcc');
+
         const btnPlayPause = document.getElementById('btnPlayPause');
         const playIcon = document.getElementById('playIcon');
-        const playText = document.getElementById('playText');
+        const playLabel = document.getElementById('playLabel');
         const btnReplay = document.getElementById('btnReplay');
-        const btnSlowMo = document.getElementById('btnSlowMo');
+        const btnStep = document.getElementById('btnStep');
+        const btnSpeed = document.getElementById('btnSpeed');
         const timeScrubber = document.getElementById('timeScrubber');
-        const timeDisplay = document.getElementById('timeDisplay');
-        const progressBarFill = document.getElementById('progressBarFill');
-        const progressPercent = document.getElementById('progressPercent');
-        const healthBarFill = document.getElementById('healthBarFill');
-        const healthPercent = document.getElementById('healthPercent');
-        const dualToggles = document.getElementById('dualToggles');
-        const btnViewMain = document.getElementById('btnViewMain');
-        const btnViewDual = document.getElementById('btnViewDual');
+        const timeReadout = document.getElementById('timeReadout');
 
-        function initGame() {
-            buildLetterButtons();
-            buildLevelsGrid();
-            setupModeTabs();
-            setupOverlays();
-            setupSketchCanvas();
-            setupBuilder();
-            loadLevel(0, false); // Do not autoplay on initial open
+        function initApp() {
+            buildCardsGallery();
+            buildStepper();
+            setupTabs();
+            setupControls();
+            setupSketch();
+            setupSandbox();
+            loadMission(0, false);
         }
 
-        function buildLetterButtons() {
-            lettersGrid.innerHTML = '';
-            lettersList.forEach(letter => {
-                const btn = document.createElement('button');
-                btn.className = 'letter-btn';
-                btn.textContent = letter;
-                btn.id = `btn-letter-${letter}`;
-                btn.addEventListener('click', () => selectLetter(letter));
-                lettersGrid.appendChild(btn);
+        function buildCardsGallery() {
+            cardsGallery.innerHTML = '';
+            missionKeys.forEach(k => {
+                const s = scenarios[k];
+                const btn = document.createElement('div');
+                btn.className = 'graph-card-btn';
+                btn.id = `card-btn-${k.replace('#', '')}`;
+                btn.innerHTML = `
+                    <span class="card-id">${k}</span>
+                    <span class="card-tag">${s.type === 'position' ? 'x - t' : 'v - t'}</span>
+                `;
+                btn.addEventListener('click', () => selectCard(k));
+                cardsGallery.appendChild(btn);
             });
         }
 
-        function buildLevelsGrid() {
-            levelsGrid.innerHTML = '';
-            for (let i = 0; i < 11; i++) {
-                const cell = document.createElement('div');
-                cell.className = 'level-cell';
-                cell.textContent = `#${i + 1}`;
-                cell.id = `level-cell-${i}`;
-                cell.addEventListener('click', () => loadLevel(i, false));
-                levelsGrid.appendChild(cell);
+        function buildStepper() {
+            levelStepper.innerHTML = '';
+            for (let i = 0; i < 10; i++) {
+                const pill = document.createElement('div');
+                pill.className = 'step-pill';
+                pill.id = `step-pill-${i}`;
+                pill.textContent = `#${i + 1}`;
+                pill.addEventListener('click', () => loadMission(i, false));
+                levelStepper.appendChild(pill);
             }
         }
 
-        function setupModeTabs() {
-            document.querySelectorAll('.mode-btn').forEach(btn => {
+        function setupTabs() {
+            document.querySelectorAll('.tab-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
-                    document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
-                    document.querySelectorAll('.tab-view').forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
                     btn.classList.add('active');
                     document.getElementById(btn.dataset.tab).classList.add('active');
                 });
             });
         }
 
-        function setupOverlays() {
+        function setupControls() {
             document.getElementById('chkVelocity').addEventListener('change', e => { showVelocity = e.target.checked; renderStage(); });
             document.getElementById('chkAcceleration').addEventListener('change', e => { showAcceleration = e.target.checked; renderStage(); });
-            document.getElementById('chkMotionDots').addEventListener('change', e => { showMotionDots = e.target.checked; renderStage(); });
-            document.getElementById('chkTracer').addEventListener('change', e => { showTracer = e.target.checked; if (currentSelectedLetter) drawGraphPreview(graphs[currentSelectedLetter]); });
+            document.getElementById('chkPawprints').addEventListener('change', e => { showPawprints = e.target.checked; renderStage(); });
+            document.getElementById('chkTracer').addEventListener('change', e => { showTracer = e.target.checked; if (currentSelectedCard) drawGraphPreview(scenarios[currentSelectedCard]); });
 
-            btnViewMain.addEventListener('click', () => {
+            btnSingleView.addEventListener('click', () => {
                 showDual = false;
-                btnViewMain.classList.add('active');
-                btnViewDual.classList.remove('active');
-                if (currentSelectedLetter) drawGraphPreview(graphs[currentSelectedLetter]);
+                btnSingleView.classList.add('active');
+                btnDualView.classList.remove('active');
+                if (currentSelectedCard) drawGraphPreview(scenarios[currentSelectedCard]);
             });
 
-            btnViewDual.addEventListener('click', () => {
+            btnDualView.addEventListener('click', () => {
                 showDual = true;
-                btnViewDual.classList.add('active');
-                btnViewMain.classList.remove('active');
-                if (currentSelectedLetter) drawGraphPreview(graphs[currentSelectedLetter]);
+                btnDualView.classList.add('active');
+                btnSingleView.classList.remove('active');
+                if (currentSelectedCard) drawGraphPreview(scenarios[currentSelectedCard]);
             });
+
+            btnPlayPause.addEventListener('click', togglePlayPause);
+            btnReplay.addEventListener('click', () => resetToStart(true));
+            btnStep.addEventListener('click', () => stepFrame(0.1));
+            btnSpeed.addEventListener('click', toggleSpeed);
+
+            timeScrubber.addEventListener('input', e => {
+                pausePlayback();
+                simTime = parseFloat(e.target.value);
+                const scen = getCurrentTargetScenario();
+                pawprintsList = [];
+                syncSimulationToTime(simTime, scen);
+                renderStage();
+                if (currentSelectedCard) drawGraphPreview(scenarios[currentSelectedCard]);
+            });
+
+            btnSubmitMatch.addEventListener('click', checkStudentAnswer);
+            btnNextStep.addEventListener('click', advanceToNextMission);
         }
 
-        function loadLevel(levelIndex, autoPlay = true) {
-            currentLevel = levelIndex;
-            updateLevelsUI();
+        function loadMission(idx, autoPlay = true) {
+            currentMissionIdx = idx;
+            updateStepperUI();
             
-            currentSelectedLetter = null;
-            selectedLetterBadge.textContent = '--';
+            const target = getCurrentTargetScenario();
+            scenarioBadge.innerHTML = `<span>🐾 Mission #${idx + 1}:</span> <strong id="missionTitle">${target.title}</strong>`;
+
+            currentSelectedCard = null;
+            inspectBadge.textContent = '--';
             graphCanvas.style.display = 'none';
-            dualToggles.style.display = 'none';
+            viewSwitchers.style.display = 'none';
             emptyPrompt.style.display = 'block';
-            document.querySelectorAll('.letter-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.graph-card-btn').forEach(b => b.classList.remove('selected'));
             
-            btnCheck.style.display = 'inline-flex';
-            btnCheck.disabled = true;
-            btnNextMotion.style.display = 'none';
-            diagnosticCard.style.display = 'none';
+            btnSubmitMatch.style.display = 'block';
+            btnSubmitMatch.disabled = true;
+            btnNextStep.style.display = 'none';
+            cocoFeedbackCard.style.display = 'none';
 
             resetToStart(autoPlay);
         }
 
-        function resetToStart(autoPlay) {
-            const scen = getCurrentTargetScenario();
-            simTime = 0;
-            motionDots = [];
-            timeScrubber.max = scen.totalTime;
-            timeScrubber.value = 0;
-            timeDisplay.textContent = "0.0 s";
-
-            pug.x = scen.startX;
-            pug.v = scen.startV;
-            pug.a = scen.computedStages[0].a;
-            pug.heading = scen.startV < 0 ? -1 : 1;
-            pug.legPhase = 0;
-
-            cancelAnimationFrame(animationId);
-
-            if (autoPlay) {
-                isPlaying = true;
-                playIcon.textContent = '⏸';
-                playText.textContent = 'Pause';
-                lastTimestamp = performance.now();
-                animationId = requestAnimationFrame(animLoop);
-            } else {
-                isPlaying = false;
-                playIcon.textContent = '▶';
-                playText.textContent = 'Start Motion';
-                renderStage();
+        function updateStepperUI() {
+            for (let i = 0; i < 10; i++) {
+                const pill = document.getElementById(`step-pill-${i}`);
+                pill.className = 'step-pill';
+                if (i === currentMissionIdx) pill.classList.add('current');
+                if (solvedMissions.has(i)) pill.classList.add('solved');
             }
+            scoreBadge.textContent = `Solved: ${solvedMissions.size} / 10`;
         }
 
-        function updateLevelsUI() {
-            for (let i = 0; i < 11; i++) {
-                const cell = document.getElementById(`level-cell-${i}`);
-                cell.className = 'level-cell';
-                if (i === currentLevel) cell.classList.add('current');
-                if (solvedLevels.has(i)) cell.classList.add('solved');
-            }
+        function selectCard(k) {
+            currentSelectedCard = k;
+            document.querySelectorAll('.graph-card-btn').forEach(b => b.classList.remove('selected'));
+            const btn = document.getElementById(`card-btn-${k.replace('#', '')}`);
+            if (btn) btn.classList.add('selected');
 
-            let pct = Math.round((solvedLevels.size / 11) * 100);
-            progressBarFill.style.height = `${pct}%`;
-            progressPercent.textContent = `${pct} %`;
-
-            healthBarFill.style.height = `${health}%`;
-            healthPercent.textContent = `${health} %`;
-        }
-
-        function selectLetter(letter) {
-            currentSelectedLetter = letter;
-            document.querySelectorAll('.letter-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById(`btn-letter-${letter}`).classList.add('active');
-            
-            selectedLetterBadge.textContent = letter;
+            inspectBadge.textContent = `${k} (${scenarios[k].type === 'position' ? 'Position-Time' : 'Velocity-Time'})`;
             emptyPrompt.style.display = 'none';
             graphCanvas.style.display = 'block';
-            dualToggles.style.display = 'flex';
-            
-            drawGraphPreview(graphs[letter]);
-            btnCheck.disabled = false;
+            viewSwitchers.style.display = 'flex';
+
+            drawGraphPreview(scenarios[k]);
+            btnSubmitMatch.disabled = false;
         }
 
         function getCurrentTargetScenario() {
-            let targetLetter = levelAssignments[currentLevel];
-            return graphs[targetLetter];
+            let key = missionOrder[currentMissionIdx];
+            return scenarios[key];
         }
 
         function evaluateKinematics(scen, t) {
@@ -1287,37 +1249,105 @@
             return { x, v, a: stage.a, isRest };
         }
 
+        function resetToStart(autoPlay) {
+            const scen = getCurrentTargetScenario();
+            simTime = 0;
+            pawprintsList = [];
+            timeScrubber.max = scen.totalTime;
+            timeScrubber.value = 0;
+            timeReadout.textContent = "0.0 s";
+
+            pug.x = scen.startX;
+            pug.v = scen.startV;
+            pug.a = scen.computedStages[0].a;
+            pug.heading = scen.startV < 0 ? -1 : 1;
+            pug.legPhase = 0;
+
+            updateHUD(0, pug.x, pug.v, pug.a);
+            cancelAnimationFrame(animationId);
+
+            if (autoPlay) {
+                isPlaying = true;
+                playIcon.textContent = '⏸';
+                playLabel.textContent = 'Pause';
+                lastTimestamp = performance.now();
+                animationId = requestAnimationFrame(animLoop);
+            } else {
+                isPlaying = false;
+                playIcon.textContent = '▶';
+                playLabel.textContent = 'Start Motion';
+                renderStage();
+            }
+        }
+
+        function togglePlayPause() {
+            if (isPlaying) {
+                pausePlayback();
+            } else {
+                const scen = getCurrentTargetScenario();
+                if (simTime >= scen.totalTime) simTime = 0;
+                isPlaying = true;
+                playIcon.textContent = '⏸';
+                playLabel.textContent = 'Pause';
+                lastTimestamp = performance.now();
+                animationId = requestAnimationFrame(animLoop);
+            }
+        }
+
+        function pausePlayback() {
+            isPlaying = false;
+            playIcon.textContent = '▶';
+            playLabel.textContent = 'Resume';
+            cancelAnimationFrame(animationId);
+        }
+
+        function stepFrame(stepSec) {
+            pausePlayback();
+            const scen = getCurrentTargetScenario();
+            simTime = Math.min(scen.totalTime, simTime + stepSec);
+            syncSimulationToTime(simTime, scen);
+            renderStage();
+            if (currentSelectedCard) drawGraphPreview(scenarios[currentSelectedCard]);
+        }
+
+        function toggleSpeed() {
+            if (isSlowMoSpeed === 1.0) isSlowMoSpeed = 0.5;
+            else if (isSlowMoSpeed === 0.5) isSlowMoSpeed = 1.5;
+            else isSlowMoSpeed = 1.0;
+            btnSpeed.textContent = `${isSlowMoSpeed}×`;
+        }
+
         function animLoop(timestamp) {
             if (!isPlaying) return;
             
             let dt = (timestamp - lastTimestamp) / 1000;
             lastTimestamp = timestamp;
-            if (isSlowMo) dt *= 0.45;
+            dt *= isSlowMoSpeed;
 
             if (dt < 0.15) {
                 simTime += dt;
                 const scen = getCurrentTargetScenario();
                 
-                if (simTime > scen.totalTime) {
+                if (simTime >= scen.totalTime) {
                     simTime = scen.totalTime;
                     isPlaying = false;
                     playIcon.textContent = '▶';
-                    playText.textContent = 'Replay';
+                    playLabel.textContent = 'Replay';
                 }
 
-                syncTimeToSimulation(simTime, scen);
+                syncSimulationToTime(simTime, scen);
                 pug.legPhase += Math.abs(pug.v) * dt * 8;
             }
             
             renderStage();
-            if (currentSelectedLetter) drawGraphPreview(graphs[currentSelectedLetter]);
+            if (currentSelectedCard) drawGraphPreview(scenarios[currentSelectedCard]);
 
             if (isPlaying) {
                 animationId = requestAnimationFrame(animLoop);
             }
         }
 
-        function syncTimeToSimulation(t, scen) {
+        function syncSimulationToTime(t, scen) {
             let kin = evaluateKinematics(scen, t);
             pug.x = kin.x;
             pug.v = kin.v;
@@ -1327,23 +1357,24 @@
             }
 
             timeScrubber.value = t;
-            timeDisplay.textContent = `${t.toFixed(1)} s`;
+            timeReadout.textContent = `${t.toFixed(1)} s`;
+            updateHUD(t, kin.x, kin.v, kin.a);
 
-            let expectedDotCount = Math.floor(t / dotInterval) + 1;
-            while (motionDots.length < expectedDotCount && (motionDots.length * dotInterval) <= scen.totalTime) {
-                let dotTime = motionDots.length * dotInterval;
+            let expectedPawCount = Math.floor(t / pawInterval) + 1;
+            while (pawprintsList.length < expectedPawCount && (pawprintsList.length * pawInterval) <= scen.totalTime) {
+                let dotTime = pawprintsList.length * pawInterval;
                 let dotKin = evaluateKinematics(scen, dotTime);
                 
                 let restStack = 0;
-                if (motionDots.length > 0) {
-                    let prevDot = motionDots[motionDots.length - 1];
-                    if (Math.abs(dotKin.x - prevDot.x) < 0.28 || dotKin.isRest) {
-                        restStack = prevDot.restStack + 1;
-                        dotKin.x = prevDot.x;
+                if (pawprintsList.length > 0) {
+                    let prev = pawprintsList[pawprintsList.length - 1];
+                    if (Math.abs(dotKin.x - prev.x) < 0.28 || dotKin.isRest) {
+                        restStack = prev.restStack + 1;
+                        dotKin.x = prev.x;
                     }
                 }
 
-                motionDots.push({
+                pawprintsList.push({
                     x: dotKin.x,
                     v: dotKin.v,
                     a: dotKin.a,
@@ -1352,33 +1383,14 @@
             }
         }
 
-        /*
-         ==========================================================================
-         CANVAS RENDERING: COCO THE BLACK PUG & STAGE
-         ==========================================================================
-        */
-        
-        // Coco Speech Bubble State
-        let cocoBubbleText = "";
-        let cocoBubbleType = "info"; // success, error, info
-        let cocoBubbleTimer = null;
+        function updateHUD(t, x, v, a) {
+            hudTime.textContent = `${t.toFixed(1)} s`;
+            hudPos.textContent = `${x.toFixed(1)} m`;
+            hudVel.textContent = `${(v >= 0 ? '+' : '')}${v.toFixed(1)} m/s`;
+            hudAcc.textContent = `${(a >= 0 ? '+' : '')}${a.toFixed(1)} m/s²`;
+        }
 
-                                const cocoSuccessPraise = [
-            "🐾 Pawsome job! You nailed the slope! Here\'s a virtual treat! 🦴",
-            "🐾 Woof! That\'s a treat-worthy match! Coco approved! 🎾",
-            "🐾 Tail-wagging brilliance! You translated my zoomies into math! ⭐",
-            "🐾 Spot on! You know your velocity from your position! 🐶",
-            "🐾 Bark-tastic! You decoded my run like a physics champion! 🥓"
-        ];
-
-        const cocoErrorQuotes = [
-            "🐾 Ruh-roh! Barking up the wrong graph! Let\'s paws and try again...",
-            "🐾 Sniffing in the wrong direction! Replay my run and watch my pawprints! 🦴",
-            "🐾 Paws and reflect! Look closely at whether that\'s a Position or Velocity graph! 🐶",
-            "🐾 Not quite! My tail says check if I was speeding up or slowing down! 🐕"
-        ];
-
-        function showCocoBubble(text, type = 'info', duration = 3500) {
+        function showCocoBubble(text, type = 'info', duration = 4500) {
             cocoBubbleText = text;
             cocoBubbleType = type;
             if (cocoBubbleTimer) clearTimeout(cocoBubbleTimer);
@@ -1400,15 +1412,13 @@
             const bx = Math.max(12, Math.min(simCanvas.width - bw - 12, x - bw / 2));
             const by = Math.max(6, y - bh);
 
-            // Bubble background with high contrast drop shadow
             ctx.fillStyle = '#ffffff';
             ctx.strokeStyle = type === 'success' ? '#10b981' : (type === 'error' ? '#ef4444' : '#0f7e9b');
             ctx.lineWidth = 2.5;
-            ctx.shadowColor = 'rgba(0,0,0,0.20)';
+            ctx.shadowColor = 'rgba(0,0,0,0.18)';
             ctx.shadowBlur = 10;
             ctx.shadowOffsetY = 4;
 
-            // Rounded rect
             ctx.beginPath();
             const r = 8;
             ctx.moveTo(bx + r, by);
@@ -1417,7 +1427,6 @@
             ctx.lineTo(bx + bw, by + bh - r);
             ctx.arcTo(bx + bw, by + bh, bx + bw - r, by + bh, r);
             
-            // Pointer tail pointing directly down toward Coco
             const tailX = Math.max(bx + 18, Math.min(bx + bw - 18, x));
             ctx.lineTo(tailX + 6, by + bh);
             ctx.lineTo(x, by + bh + 8);
@@ -1431,7 +1440,6 @@
             ctx.fill();
             ctx.stroke();
 
-            // Text
             ctx.shadowColor = 'transparent';
             ctx.fillStyle = '#0f172a';
             ctx.textAlign = 'left';
@@ -1440,26 +1448,96 @@
             ctx.restore();
         }
 
-                // Vector drawing of an Amber Paw Print for Motion Map
+        /*
+         ==========================================================================
+         CANVAS STAGE RENDERING
+         ==========================================================================
+        */
+        function renderStage() {
+            const w = simCanvas.width;
+            const h = simCanvas.height;
+            const margin = 45;
+            const trackW = w - 2 * margin;
+            const pxPerMeter = trackW / trackLength;
+
+            sctx.clearRect(0, 0, w, h);
+
+            // Runway Boundary Line
+            sctx.beginPath();
+            sctx.moveTo(margin, trackY);
+            sctx.lineTo(w - margin, trackY);
+            sctx.strokeStyle = "#94a3b8";
+            sctx.lineWidth = 3;
+            sctx.stroke();
+
+            // Coordinate Ticks
+            sctx.fillStyle = "#64748b";
+            sctx.font = "bold 11px sans-serif";
+            sctx.textAlign = "center";
+            for (let m = 0; m <= trackLength; m += 2) {
+                let px = margin + m * pxPerMeter;
+                sctx.beginPath();
+                sctx.moveTo(px, trackY);
+                sctx.lineTo(px, trackY + 7);
+                sctx.strokeStyle = "#94a3b8";
+                sctx.lineWidth = 1.5;
+                sctx.stroke();
+                sctx.fillText(m + "m", px, trackY + 22);
+            }
+
+            // Pawprint Motion Map
+            if (showPawprints) {
+                const pawY = trackY - 2;
+                pawprintsList.forEach(dot => {
+                    let dpx = margin + dot.x * pxPerMeter;
+                    let dpy = pawY - (dot.restStack * 7);
+                    if (dot.restStack === 0) dpy = pawY;
+
+                    drawPawPrint(sctx, dpx, dpy, dot.v < 0 ? -1 : 1, dot.restStack > 0, dot.restStack);
+
+                    if (showVelocity && Math.abs(dot.v) > 0.3) {
+                        drawVectorArrow(sctx, dpx, dpy - 10, dpx + dot.v * 3, dpy - 10, "#d67b19", 1.5);
+                    }
+                });
+            }
+
+            // Draw Coco the Black Pug
+            let pugPx = margin + pug.x * pxPerMeter;
+            drawCocoThePug(sctx, pugPx, trackY, pug.heading, pug.legPhase, Math.abs(pug.v) > 0.1);
+
+            // Live Velocity Vector (Amber)
+            if (showVelocity && Math.abs(pug.v) > 0.1) {
+                let vLen = pug.v * 7;
+                drawVectorArrow(sctx, pugPx, trackY - 82, pugPx + vLen, trackY - 82, "#d67b19", 3.5, "v");
+            }
+
+            // Live Acceleration Vector (Teal)
+            if (showAcceleration && Math.abs(pug.a) > 0.1) {
+                let aLen = pug.a * 14;
+                drawVectorArrow(sctx, pugPx, trackY - 100, pugPx + aLen, trackY - 100, "#0f7e9b", 3.5, "a");
+            }
+
+            // Draw Coco Speech Bubble
+            if (cocoBubbleText) {
+                drawSpeechBubble(sctx, pugPx, trackY - 116, cocoBubbleText, cocoBubbleType);
+            }
+        }
+
         function drawPawPrint(ctx, x, y, heading, isRest = false, restStack = 0) {
             ctx.save();
             ctx.translate(x, y);
-            if (!isRest && heading < 0) {
-                ctx.scale(-1, 1);
-            }
+            if (!isRest && heading < 0) ctx.scale(-1, 1);
             
             const scale = 0.9;
             ctx.fillStyle = '#d67b19';
             ctx.strokeStyle = '#b06210';
             ctx.lineWidth = 1;
 
-            // Main Palm Pad
             ctx.beginPath();
             ctx.ellipse(0, 1.5 * scale, 4.2 * scale, 3.2 * scale, 0, 0, Math.PI * 2);
             ctx.fill();
             ctx.stroke();
 
-            // 4 Toe Beans
             const toes = [
                 { dx: -4.2 * scale, dy: -2.8 * scale, rx: 1.5 * scale, ry: 2.2 * scale, rot: -0.35 },
                 { dx: -1.5 * scale, dy: -4.8 * scale, rx: 1.6 * scale, ry: 2.4 * scale, rot: -0.1 },
@@ -1477,80 +1555,6 @@
             ctx.restore();
         }
 
-        function renderStage() {
-            const w = simCanvas.width;
-            const h = simCanvas.height;
-            const margin = 45;
-            const trackW = w - 2 * margin;
-            const pxPerMeter = trackW / trackLength;
-
-            sctx.clearRect(0, 0, w, h);
-
-            // Track Line
-            sctx.beginPath();
-            sctx.moveTo(margin, trackY);
-            sctx.lineTo(w - margin, trackY);
-            sctx.strokeStyle = "#94a3b8";
-            sctx.lineWidth = 3;
-            sctx.stroke();
-
-            // Ticks
-            sctx.fillStyle = "#64748b";
-            sctx.font = "11px sans-serif";
-            sctx.textAlign = "center";
-            for (let m = 0; m <= trackLength; m += 2) {
-                let px = margin + m * pxPerMeter;
-                sctx.beginPath();
-                sctx.moveTo(px, trackY);
-                sctx.lineTo(px, trackY + 7);
-                sctx.strokeStyle = "#94a3b8";
-                sctx.lineWidth = 1.5;
-                sctx.stroke();
-                sctx.fillText(m + "m", px, trackY + 20);
-            }
-
-            // Motion Map Paw Prints (Amber Paw Prints)
-            if (showMotionDots) {
-                const pawY = trackY - 2;
-                motionDots.forEach(dot => {
-                    let dpx = margin + dot.x * pxPerMeter;
-                    let dpy = pawY - (dot.restStack * 7);
-                    if (dot.restStack === 0) dpy = pawY;
-
-                    drawPawPrint(sctx, dpx, dpy, dot.v < 0 ? -1 : 1, dot.restStack > 0, dot.restStack);
-
-                    if (showVelocity && Math.abs(dot.v) > 0.3) {
-                        drawVectorArrow(sctx, dpx, dpy - 10, dpx + dot.v * 3, dpy - 10, "#d67b19", 1.5);
-                    }
-                });
-            }
-
-                        // Draw Coco the Black Pug
-            let pugPx = margin + pug.x * pxPerMeter;
-            drawCocoThePug(sctx, pugPx, trackY, pug.heading, pug.legPhase, Math.abs(pug.v) > 0.1);
-
-            // Live Velocity Vector (Amber, just above Coco's head)
-            if (showVelocity && Math.abs(pug.v) > 0.1) {
-                let vLen = pug.v * 7;
-                drawVectorArrow(sctx, pugPx, trackY - 82, pugPx + vLen, trackY - 82, "#d67b19", 3.5, "v");
-            }
-
-            // Live Acceleration Vector (Teal, stacked neatly above velocity)
-            if (showAcceleration && Math.abs(pug.a) > 0.1) {
-                let aLen = pug.a * 14;
-                drawVectorArrow(sctx, pugPx, trackY - 100, pugPx + aLen, trackY - 100, "#0f7e9b", 3.5, "a");
-            }
-
-            // Draw Coco Speech Bubble if active (floating at top tier, completely above all vectors)
-            if (cocoBubbleText) {
-                drawSpeechBubble(sctx, pugPx, trackY - 116, cocoBubbleText, cocoBubbleType);
-            }
-        }
-
-        // Vector drawing of Coco the Black Pug
-        const cocoImg = new Image();
-        cocoImg.src = 'data:image/png;base64,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';
-
         function drawCocoThePug(ctx, x, y, heading, legPhase, isMoving) {
             ctx.save();
             ctx.translate(x, y);
@@ -1561,14 +1565,12 @@
             const h = 76;
 
             if (cocoImg.complete && cocoImg.naturalWidth > 0) {
-                // Draw Coco photo with subtle drop shadow
                 ctx.shadowColor = 'rgba(0,0,0,0.25)';
                 ctx.shadowBlur = 6;
                 ctx.shadowOffsetY = 3;
                 ctx.drawImage(cocoImg, -w/2, -h - bounce, w, h);
                 ctx.shadowColor = 'transparent';
             } else {
-                // Fallback
                 ctx.fillStyle = '#1e293b';
                 ctx.beginPath();
                 ctx.ellipse(0, -18 - bounce, 22, 14, 0, 0, Math.PI * 2);
@@ -1641,19 +1643,19 @@
             ctx.lineTo(ox + plotW, xAxisY);
             ctx.stroke();
 
-            // Text Labels
+            // Labels
             ctx.fillStyle = "#000000";
             ctx.font = "bold 11px sans-serif";
             if (showTimeLabel) {
                 ctx.textAlign = "center";
-                ctx.fillText("time", ox + plotW / 2, oy + plotH + 16);
+                ctx.fillText("time (s)", ox + plotW / 2, oy + plotH + 16);
             }
 
             ctx.save();
             ctx.translate(ox - 24, oy + plotH / 2);
             ctx.rotate(-Math.PI / 2);
             ctx.textAlign = "center";
-            ctx.fillText(customYLabel || (type === 'position' ? 'position' : 'velocity'), 0, 0);
+            ctx.fillText(customYLabel || (type === 'position' ? 'position (x)' : 'velocity (v)'), 0, 0);
             ctx.restore();
 
             if (type === 'velocity') {
@@ -1664,8 +1666,8 @@
                 ctx.fillText("-", ox - 4, oy + plotH - 2);
             }
 
-            // Plotted curve
-            ctx.strokeStyle = type === 'position' ? "var(--primary-teal)" : "#e05344";
+            // Curve
+            ctx.strokeStyle = type === 'position' ? "#0f7e9b" : "#d67b19";
             ctx.lineWidth = 3;
             ctx.beginPath();
 
@@ -1695,29 +1697,11 @@
             }
             ctx.stroke();
 
-            // Rest & Stage Dots
-            scen.computedStages.forEach((stage, sIdx) => {
-                if (sIdx > 0) {
-                    let prevStage = scen.computedStages[sIdx - 1];
-                    let tTrans = stage.tStart;
-                    let kin = evaluateKinematics(scen, tTrans);
-                    let px = ox + (tTrans / scen.totalTime) * plotW;
-                    let py = type === 'position' ? (oy + plotH) - (Math.max(0, Math.min(20, kin.x)) / 20) * plotH : (oy + plotH) - ((kin.v + 10) / 20) * plotH;
-
-                    if (stage.v0 === 0 || prevStage.v0 === 0 || prevStage.a !== stage.a) {
-                        ctx.beginPath();
-                        ctx.arc(px, py, 4, 0, Math.PI * 2);
-                        ctx.fillStyle = "#000000";
-                        ctx.fill();
-                    }
-                }
-            });
-
-            // Glowing tracer
+            // Tracer
             if (showTracer && currentTracerPoint) {
                 ctx.beginPath();
                 ctx.arc(currentTracerPoint.px, currentTracerPoint.py, 6, 0, Math.PI * 2);
-                ctx.fillStyle = "var(--accent-amber)";
+                ctx.fillStyle = "#d67b19";
                 ctx.fill();
                 ctx.strokeStyle = "#ffffff";
                 ctx.lineWidth = 2;
@@ -1727,157 +1711,103 @@
 
         /*
          ==========================================================================
-         PER DIAGNOSTIC FEEDBACK ENGINE
+         DIAGNOSTIC ENGINE & SUBMISSION
          ==========================================================================
         */
-        function getDiagnosticFeedback(chosenLetter, targetLetter) {
-            const chosen = graphs[chosenLetter];
-            const target = graphs[targetLetter];
+        function getDiagnosticAnalysis(chosenKey, targetKey) {
+            const chosen = scenarios[chosenKey];
+            const target = scenarios[targetKey];
 
             if (chosen.type !== target.type) {
                 return {
                     type: 'axis',
-                    title: "⚠️ Graph Type Check",
-                    body: `Graph ${chosenLetter} is a <strong>${chosen.type.toUpperCase()}</strong> graph, but Coco's current run corresponds to a <strong>${target.type.toUpperCase()}</strong> graph. Look closely at the vertical axis label.`
+                    title: "Graph Type Mismatch",
+                    body: `Card ${chosenKey} is a <strong>${chosen.type.toUpperCase()}</strong> plot, but Mission ${targetKey} describes a <strong>${target.type.toUpperCase()}</strong> relationship. Check the vertical axis!`
                 };
             }
 
-            let targetInitialDir = target.startV > 0 ? "right (+)" : (target.startV < 0 ? "left (-)" : "at rest (0)");
-            let chosenInitialDir = chosen.startV > 0 ? "right (+)" : (chosen.startV < 0 ? "left (-)" : "at rest (0)");
-            if (targetInitialDir !== chosenInitialDir && targetInitialDir !== "at rest (0)") {
+            let targetDir = target.startV > 0 ? "right (+)" : (target.startV < 0 ? "left (-)" : "at rest (0)");
+            let chosenDir = chosen.startV > 0 ? "right (+)" : (chosen.startV < 0 ? "left (-)" : "at rest (0)");
+            if (targetDir !== chosenDir && targetDir !== "at rest (0)") {
                 return {
                     type: 'dir',
-                    title: "🧭 Direction Check",
-                    body: `Coco starts her trot moving <strong>${targetInitialDir}</strong>, but Graph ${chosenLetter} represents motion starting <strong>${chosenInitialDir}</strong>.`
+                    title: "Initial Direction Mismatch",
+                    body: `Coco starts her run moving <strong>${targetDir}</strong>, whereas Card ${chosenKey} starts moving <strong>${chosenDir}</strong>.`
                 };
             }
 
             if (target.stages[0].a !== 0 && chosen.stages[0].a === 0) {
                 return {
                     type: 'acc',
-                    title: "📈 Speed & Acceleration Check",
-                    body: `Coco is <strong>accelerating</strong> (changing speed, paw prints change spacing). Graph ${chosenLetter} shows constant speed with zero acceleration.`
+                    title: "Acceleration Misconception",
+                    body: `Coco is accelerating (changing speed, changing pawprint spacing), while Card ${chosenKey} shows constant speed.`
                 };
             }
 
             return {
                 type: 'general',
-                title: "🐾 Kinematic Breakdown",
-                body: `Graph ${chosenLetter} represents: <em>${chosen.desc}</em>. Replay Coco's motion and watch where she accelerates, pauses, or turns around.`
+                title: "Kinematic Curve Check",
+                body: `Card ${chosenKey} depicts: <em>${chosen.desc}</em>. Replay Coco's run and observe turning points and speed variations.`
             };
         }
 
-        /*
-         ==========================================================================
-         EVENT HANDLERS & CONTROLS
-         ==========================================================================
-        */
-        btnCheck.addEventListener('click', () => {
-            if (!currentSelectedLetter) return;
+        function checkStudentAnswer() {
+            if (!currentSelectedCard) return;
 
-            const targetLetter = levelAssignments[currentLevel];
+            const targetKey = missionOrder[currentMissionIdx];
+            const target = scenarios[targetKey];
 
-            if (currentSelectedLetter === targetLetter) {
-                solvedLevels.add(currentLevel);
-                diagnosticCard.className = 'diagnostic-card success';
-                
+            if (currentSelectedCard === targetKey) {
+                solvedMissions.add(currentMissionIdx);
+                cocoFeedbackCard.className = 'coco-feedback-card success';
+
                 const randomPraise = cocoSuccessPraise[Math.floor(Math.random() * cocoSuccessPraise.length)];
-                if (cocoAvatarBadge) cocoAvatarBadge.textContent = '🎉';
-                if (diagCocoQuote) diagCocoQuote.innerHTML = randomPraise;
-                if (diagBody) diagBody.innerHTML = `<strong>Spot on!</strong> Motion #${currentLevel + 1} perfectly matches Graph ${currentSelectedLetter}: <em>${graphs[targetLetter].desc}</em><br><small style="color: #047857; margin-top: 4px; display: inline-block;">Take your time to replay the motion and study the graph. When ready, click <strong>Next Motion ➔</strong>.</small>`;
-                
-                // Show the witty praise directly in the speech bubble over Coco on the track
+                avatarBadge.textContent = '🎉';
+                quoteLine.textContent = randomPraise;
+                detailText.innerHTML = `<strong>Spot on!</strong> Mission #${currentMissionIdx + 1} precisely corresponds to Card ${currentSelectedCard}: <em>${target.desc}</em><br><small style="color: #047857; margin-top: 4px; display: inline-block;">Take your time to replay and inspect the graph. Click <strong>Next Motion ➔</strong> when ready.</small>`;
+
                 showCocoBubble(randomPraise, 'success', 5000);
+                updateStepperUI();
 
-                updateLevelsUI();
+                btnSubmitMatch.style.display = 'none';
+                btnNextStep.style.display = 'inline-flex';
 
-                // Reveal Next Motion button without moving automatically
-                btnCheck.style.display = 'none';
-                btnNextMotion.style.display = 'inline-flex';
-                
-                if (solvedLevels.size < 11) {
-                    let next = (currentLevel + 1) % 11;
-                    while (solvedLevels.has(next)) next = (next + 1) % 11;
-                    btnNextMotion.textContent = `Next Motion (#${next + 1}) ➔`;
+                if (solvedMissions.size < 10) {
+                    let next = (currentMissionIdx + 1) % 10;
+                    while (solvedMissions.has(next)) next = (next + 1) % 10;
+                    btnNextStep.textContent = `Next Motion (#${next + 1}) ➔`;
                 } else {
-                    btnNextMotion.textContent = '🏆 All 11 Motions Mastered!';
+                    btnNextStep.textContent = '🏆 All 10 Missions Mastered!';
                 }
             } else {
-                health = Math.max(0, health - 10);
-                updateLevelsUI();
-
-                const diag = getDiagnosticFeedback(currentSelectedLetter, targetLetter);
+                const diag = getDiagnosticAnalysis(currentSelectedCard, targetKey);
                 
-                // Select contextual witty error quote
                 let randomError = cocoErrorQuotes[0];
-                if (diag.type === 'axis') randomError = cocoErrorQuotes[2]; // Paws and reflect (Position vs Velocity)
-                else if (diag.type === 'dir') randomError = cocoErrorQuotes[1]; // Sniffing in the wrong direction
-                else if (diag.type === 'acc') randomError = cocoErrorQuotes[3]; // Not quite (speeding up or slowing down)
+                if (diag.type === 'axis') randomError = cocoErrorQuotes[2];
+                else if (diag.type === 'dir') randomError = cocoErrorQuotes[1];
+                else if (diag.type === 'acc') randomError = cocoErrorQuotes[3];
                 else randomError = cocoErrorQuotes[Math.floor(Math.random() * cocoErrorQuotes.length)];
-                
-                if (cocoAvatarBadge) cocoAvatarBadge.textContent = '💡';
-                diagnosticCard.className = 'diagnostic-card error';
-                if (diagCocoQuote) diagCocoQuote.innerHTML = randomError;
-                if (diagBody) diagBody.innerHTML = `<strong>${diag.title}:</strong> ${diag.body}`;
 
-                // Show the exact witty error quote directly in the speech bubble over Coco on the track
+                avatarBadge.textContent = '💡';
+                cocoFeedbackCard.className = 'coco-feedback-card error';
+                quoteLine.textContent = randomError;
+                detailText.innerHTML = `<strong>${diag.title}:</strong> ${diag.body}`;
+
                 showCocoBubble(randomError, 'error', 5000);
             }
-        });
+        }
 
-        // Next Motion button click handler (Manual Student Progression)
-        btnNextMotion.addEventListener('click', () => {
-            if (solvedLevels.size < 11) {
-                let next = (currentLevel + 1) % 11;
-                while (solvedLevels.has(next)) next = (next + 1) % 11;
-                loadLevel(next, false);
+        function advanceToNextMission() {
+            if (solvedMissions.size < 10) {
+                let next = (currentMissionIdx + 1) % 10;
+                while (solvedMissions.has(next)) next = (next + 1) % 10;
+                loadMission(next, false);
             } else {
-                alert('🏆 Outstanding achievement! You have mastered all 11 Kinematic motion scenarios!');
+                alert('🏆 Outstanding Physics Mastery! You have completed all 10 Kinematic missions!');
             }
-        });
+        }
 
-        btnPlayPause.addEventListener('click', () => {
-            if (isPlaying) {
-                isPlaying = false;
-                playIcon.textContent = '▶';
-                playText.textContent = 'Resume';
-                cancelAnimationFrame(animationId);
-            } else {
-                const scen = getCurrentTargetScenario();
-                if (simTime >= scen.totalTime) simTime = 0;
-                isPlaying = true;
-                playIcon.textContent = '⏸';
-                playText.textContent = 'Pause';
-                lastTimestamp = performance.now();
-                animationId = requestAnimationFrame(animLoop);
-            }
-        });
-
-        btnReplay.addEventListener('click', () => {
-            resetToStart(true);
-        });
-
-        btnSlowMo.addEventListener('click', () => {
-            isSlowMo = !isSlowMo;
-            btnSlowMo.textContent = `Slow-Mo: ${isSlowMo ? 'ON' : 'OFF'}`;
-            btnSlowMo.style.backgroundColor = isSlowMo ? '#e2e8f0' : '#ffffff';
-        });
-
-        timeScrubber.addEventListener('input', e => {
-            isPlaying = false;
-            playIcon.textContent = '▶';
-            playText.textContent = 'Play';
-            cancelAnimationFrame(animationId);
-            
-            simTime = parseFloat(e.target.value);
-            const scen = getCurrentTargetScenario();
-            motionDots = [];
-            syncTimeToSimulation(simTime, scen);
-            renderStage();
-            if (currentSelectedLetter) drawGraphPreview(graphs[currentSelectedLetter]);
-        });
-
-        function setupSketchCanvas() {
+        function setupSketch() {
             const skCanvas = document.getElementById('sketchCanvas');
             const skCtx = skCanvas.getContext('2d');
             let isDrawing = false;
@@ -1926,7 +1856,7 @@
                 const rect = skCanvas.getBoundingClientRect();
                 const x = (e.clientX || e.touches[0].clientX) - rect.left;
                 const y = (e.clientY || e.touches[0].clientY) - rect.top;
-                skCtx.strokeStyle = "var(--primary-teal)";
+                skCtx.strokeStyle = "#0f7e9b";
                 skCtx.lineWidth = 3;
                 skCtx.beginPath();
                 skCtx.moveTo(x, y);
@@ -1951,37 +1881,24 @@
             window.addEventListener('touchend', stopDraw);
         }
 
-        function setupBuilder() {
-            const bCanvas = document.getElementById('builderGraphCanvas');
+        function setupSandbox() {
+            const bCanvas = document.getElementById('sandboxGraphCanvas');
             const bCtx = bCanvas.getContext('2d');
 
-            function getCustomScenario() {
-                const x0 = parseFloat(document.getElementById('buildX0').value) || 2;
-                const v0 = parseFloat(document.getElementById('buildV0').value) || 0;
-                const a1 = parseFloat(document.getElementById('buildA1').value) || 0;
-                const t1 = parseFloat(document.getElementById('buildT1').value) || 2;
-                const s2Type = document.getElementById('buildStage2Type').value;
-                const a2 = parseFloat(document.getElementById('buildA2').value) || 0;
-                const t2 = parseFloat(document.getElementById('buildT2').value) || 2;
-
-                let stage2 = { d: t2, a: a2 };
-                if (s2Type === 'rest') stage2.vForce = 0;
-                if (s2Type === 'reverse') stage2.vForce = -(v0 + a1 * t1);
-
-                let customScen = {
-                    startX: x0,
-                    startV: v0,
-                    stages: [{ d: t1, a: a1 }, stage2]
-                };
-                computeStages(customScen);
-                return customScen;
+            function getSandboxScenario() {
+                const x0 = parseFloat(document.getElementById('sboxX0').value) || 0;
+                const v0 = parseFloat(document.getElementById('sboxV0').value) || 0;
+                const a1 = parseFloat(document.getElementById('sboxA1').value) || 0;
+                let s = { startX: x0, startV: v0, stages: [{ d: 3.5, a: a1 }] };
+                computeKinematicStages(s);
+                return s;
             }
 
-            function renderBuilderPreview() {
-                const scen = getCustomScenario();
+            function renderSandboxPreview() {
+                const scen = getSandboxScenario();
                 const w = bCanvas.width;
                 const h = bCanvas.height;
-                const m = 35;
+                const m = 30;
 
                 bCtx.clearRect(0, 0, w, h);
                 bCtx.strokeStyle = "#000";
@@ -1993,14 +1910,14 @@
                 bCtx.lineTo(w - 15, h - m);
                 bCtx.stroke();
 
-                bCtx.strokeStyle = "var(--primary-teal)";
+                bCtx.strokeStyle = "#0f7e9b";
                 bCtx.lineWidth = 3;
                 bCtx.beginPath();
 
-                for (let i = 0; i <= 60; i++) {
-                    let t = (i / 60) * scen.totalTime;
+                for (let i = 0; i <= 50; i++) {
+                    let t = (i / 50) * scen.totalTime;
                     let kin = evaluateKinematics(scen, t);
-                    let px = m + (i / 60) * (w - m - 25);
+                    let px = m + (i / 50) * (w - m - 20);
                     let py = (h - m) - (Math.max(0, Math.min(20, kin.x)) / 20) * (h - m - 25);
                     if (i === 0) bCtx.moveTo(px, py);
                     else bCtx.lineTo(px, py);
@@ -2008,32 +1925,31 @@
                 bCtx.stroke();
             }
 
-            document.querySelectorAll('#builder-tab input, #builder-tab select').forEach(elem => {
-                elem.addEventListener('input', renderBuilderPreview);
+            document.querySelectorAll('#builder-tab input').forEach(inp => {
+                inp.addEventListener('input', renderSandboxPreview);
             });
 
-            document.getElementById('btnApplyBuilder').addEventListener('click', () => {
-                const customScen = getCustomScenario();
-                levelAssignments[currentLevel] = 'CUSTOM';
-                graphs['CUSTOM'] = {
-                    letter: 'CUSTOM',
-                    type: 'position',
+            document.getElementById('btnApplySandbox').addEventListener('click', () => {
+                const scen = getSandboxScenario();
+                missionOrder[currentMissionIdx] = '#CUSTOM';
+                scenarios['#CUSTOM'] = {
+                    id: '#CUSTOM',
                     title: "Coco's Custom Run",
-                    startX: customScen.startX,
-                    startV: customScen.startV,
-                    stages: customScen.stages,
-                    desc: 'Custom designed kinematic motion for Coco.'
+                    type: 'position',
+                    startX: scen.startX,
+                    startV: scen.startV,
+                    stages: scen.stages,
+                    desc: 'Custom user-designed kinematic scenario for Coco.'
                 };
-                computeStages(graphs['CUSTOM']);
-                
-                document.querySelector('[data-tab="game-tab"]').click();
-                resetToStart(true);
+                computeKinematicStages(scenarios['#CUSTOM']);
+                document.querySelector('[data-tab="lab-tab"]').click();
+                loadMission(currentMissionIdx, true);
             });
 
-            renderBuilderPreview();
+            renderSandboxPreview();
         }
 
-        window.onload = initGame;
+        window.onload = initApp;
     </script>
 </body>
 </html>
