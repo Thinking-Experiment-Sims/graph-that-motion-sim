@@ -774,9 +774,14 @@
                     </div>
                 </div>
 
-                <!-- Check Answer -->
+                <!-- Check Answer & Manual Navigation -->
                 <div class="check-answer-area">
-                    <button class="btn-check" id="btnCheck" disabled>Check Answer</button>
+                    <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                        <button class="btn-check" id="btnCheck" disabled style="flex: 1;">Check Answer</button>
+                        <button class="btn-ctrl" id="btnNextMotion" style="display: none; background-color: var(--primary-teal); font-size: 1.05rem; padding: 0.75rem 1.5rem; justify-content: center; flex: 1;">
+                            Next Motion ➔
+                        </button>
+                    </div>
                     <div class="diagnostic-card" id="diagnosticCard">
                         <div class="coco-avatar-badge" id="cocoAvatarBadge">🐶</div>
                         <div class="coco-dialogue-content">
@@ -1085,6 +1090,7 @@
         const selectedLetterBadge = document.getElementById('selectedLetterBadge');
         const emptyPrompt = document.getElementById('emptyPrompt');
         const btnCheck = document.getElementById('btnCheck');
+        const btnNextMotion = document.getElementById('btnNextMotion');
         const diagnosticCard = document.getElementById('diagnosticCard');
         const cocoAvatarBadge = document.getElementById('cocoAvatarBadge');
         const diagCocoQuote = document.getElementById('diagCocoQuote');
@@ -1180,7 +1186,10 @@
             dualToggles.style.display = 'none';
             emptyPrompt.style.display = 'block';
             document.querySelectorAll('.letter-btn').forEach(b => b.classList.remove('active'));
+            
+            btnCheck.style.display = 'inline-flex';
             btnCheck.disabled = true;
+            btnNextMotion.style.display = 'none';
             diagnosticCard.style.display = 'none';
 
             resetToStart(autoPlay);
@@ -1432,6 +1441,43 @@
             ctx.restore();
         }
 
+                // Vector drawing of an Amber Paw Print for Motion Map
+        function drawPawPrint(ctx, x, y, heading, isRest = false, restStack = 0) {
+            ctx.save();
+            ctx.translate(x, y);
+            if (!isRest && heading < 0) {
+                ctx.scale(-1, 1);
+            }
+            
+            const scale = 0.9;
+            ctx.fillStyle = '#d67b19';
+            ctx.strokeStyle = '#b06210';
+            ctx.lineWidth = 1;
+
+            // Main Palm Pad
+            ctx.beginPath();
+            ctx.ellipse(0, 1.5 * scale, 4.2 * scale, 3.2 * scale, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+
+            // 4 Toe Beans
+            const toes = [
+                { dx: -4.2 * scale, dy: -2.8 * scale, rx: 1.5 * scale, ry: 2.2 * scale, rot: -0.35 },
+                { dx: -1.5 * scale, dy: -4.8 * scale, rx: 1.6 * scale, ry: 2.4 * scale, rot: -0.1 },
+                { dx: 1.5 * scale, dy: -4.8 * scale, rx: 1.6 * scale, ry: 2.4 * scale, rot: 0.1 },
+                { dx: 4.2 * scale, dy: -2.8 * scale, rx: 1.5 * scale, ry: 2.2 * scale, rot: 0.35 }
+            ];
+
+            toes.forEach(t => {
+                ctx.beginPath();
+                ctx.ellipse(t.dx, t.dy, t.rx, t.ry, t.rot, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.stroke();
+            });
+
+            ctx.restore();
+        }
+
         function renderStage() {
             const w = simCanvas.width;
             const h = simCanvas.height;
@@ -1464,24 +1510,18 @@
                 sctx.fillText(m + "m", px, trackY + 20);
             }
 
-            // Motion Map Dots (Amber Pawprint Dots)
+            // Motion Map Paw Prints (Amber Paw Prints)
             if (showMotionDots) {
-                const dotY = trackY - 2;
-                sctx.fillStyle = "var(--accent-amber)";
+                const pawY = trackY - 2;
                 motionDots.forEach(dot => {
                     let dpx = margin + dot.x * pxPerMeter;
-                    let dpy = dotY - (dot.restStack * 6) + (dot.restStack % 2 === 0 ? 3 : -3);
-                    if (dot.restStack === 0) dpy = dotY;
+                    let dpy = pawY - (dot.restStack * 7);
+                    if (dot.restStack === 0) dpy = pawY;
 
-                    sctx.beginPath();
-                    sctx.arc(dpx, dpy, 5, 0, Math.PI * 2);
-                    sctx.fill();
-                    sctx.strokeStyle = "var(--accent-amber-dark)";
-                    sctx.lineWidth = 1;
-                    sctx.stroke();
+                    drawPawPrint(sctx, dpx, dpy, dot.v < 0 ? -1 : 1, dot.restStack > 0, dot.restStack);
 
                     if (showVelocity && Math.abs(dot.v) > 0.3) {
-                        drawVectorArrow(sctx, dpx, dpy - 10, dpx + dot.v * 3, dpy - 10, "var(--accent-amber)", 1.5);
+                        drawVectorArrow(sctx, dpx, dpy - 10, dpx + dot.v * 3, dpy - 10, "#d67b19", 1.5);
                     }
                 });
             }
@@ -1697,30 +1737,34 @@
 
             if (chosen.type !== target.type) {
                 return {
-                    title: "⚠️ Graph Type Confusion",
-                    body: `Graph ${chosenLetter} is a <strong>${chosen.type.toUpperCase()}</strong> graph, but Coco's motion currently corresponds to a <strong>${target.type.toUpperCase()}</strong> graph. Check the vertical axis!`
+                    title: "⚠️ Graph Type Misconception",
+                    body: `Graph ${chosenLetter} is a <strong>${chosen.type.toUpperCase()}</strong> graph, but Coco's current run corresponds to a <strong>${target.type.toUpperCase()}</strong> graph. Look closely at the vertical axis label.`,
+                    bubbleHint: "🐾 Check the graph's vertical axis (x vs v)!"
                 };
             }
 
-            let targetInitialDir = target.startV > 0 ? "right" : (target.startV < 0 ? "left" : "at rest");
-            let chosenInitialDir = chosen.startV > 0 ? "right" : (chosen.startV < 0 ? "left" : "at rest");
-            if (targetInitialDir !== chosenInitialDir && targetInitialDir !== "at rest") {
+            let targetInitialDir = target.startV > 0 ? "right (+)" : (target.startV < 0 ? "left (-)" : "at rest (0)");
+            let chosenInitialDir = chosen.startV > 0 ? "right (+)" : (chosen.startV < 0 ? "left (-)" : "at rest (0)");
+            if (targetInitialDir !== chosenInitialDir && targetInitialDir !== "at rest (0)") {
                 return {
                     title: "🧭 Direction Mismatch",
-                    body: `Coco starts by running <strong>${targetInitialDir}</strong>, but Graph ${chosenLetter} represents an object starting <strong>${chosenInitialDir}</strong>.`
+                    body: `Coco starts her trot moving <strong>${targetInitialDir}</strong>, but Graph ${chosenLetter} represents motion starting <strong>${chosenInitialDir}</strong>.`,
+                    bubbleHint: "🐾 Check my trot direction: Left (-) vs Right (+)!"
                 };
             }
 
             if (target.stages[0].a !== 0 && chosen.stages[0].a === 0) {
                 return {
-                    title: "📈 Acceleration Misconception",
-                    body: `Coco is <strong>accelerating</strong> (changing speed). Graph ${chosenLetter} shows a straight slope with zero acceleration.`
+                    title: "📈 Acceleration Clue",
+                    body: `Coco is <strong>accelerating</strong> (changing speed, pawprints change spacing). Graph ${chosenLetter} shows constant speed with zero acceleration.`,
+                    bubbleHint: "🐾 Notice: Am I speeding up or trotting steady?"
                 };
             }
 
             return {
-                title: "❌ Misconception Check",
-                body: `Graph ${chosenLetter} shows: <em>${chosen.desc}</em><br>Watch Coco's trot and observe how she accelerates and pauses.`
+                title: "🐾 Kinematic Breakdown",
+                body: `Graph ${chosenLetter} represents: <em>${chosen.desc}</em>. Replay Coco's motion and watch where she accelerates, pauses, or turns around.`,
+                bubbleHint: "🐾 Replay to watch my speed & pawprint spacing!"
             };
         }
 
@@ -1741,25 +1785,24 @@
                 const randomPraise = cocoSuccessPraise[Math.floor(Math.random() * cocoSuccessPraise.length)];
                 if (cocoAvatarBadge) cocoAvatarBadge.textContent = '🎉';
                 if (diagCocoQuote) diagCocoQuote.innerHTML = randomPraise;
-                if (diagBody) diagBody.innerHTML = `<strong>Spot on!</strong> Motion #${currentLevel + 1} precisely corresponds to Graph ${currentSelectedLetter}: <em>${graphs[targetLetter].desc}</em>`;
+                if (diagBody) diagBody.innerHTML = `<strong>Spot on!</strong> Motion #${currentLevel + 1} perfectly matches Graph ${currentSelectedLetter}: <em>${graphs[targetLetter].desc}</em><br><small style="color: #047857; margin-top: 4px; display: inline-block;">Take your time to replay the motion and study the graph. When ready, click <strong>Next Motion ➔</strong>.</small>`;
                 
                 // Show speech bubble over Coco on the track
-                showCocoBubble("🦴 Pawsome! You got it!", 'success', 3500);
+                showCocoBubble("🦴 Pawsome match! Spot on!", 'success', 4000);
 
                 updateLevelsUI();
 
-                setTimeout(() => {
-                    if (solvedLevels.size < 11) {
-                        let next = (currentLevel + 1) % 11;
-                        while (solvedLevels.has(next)) next = (next + 1) % 11;
-                        loadLevel(next, false);
-                    } else {
-                        if (cocoAvatarBadge) cocoAvatarBadge.textContent = '🏆';
-                        if (diagCocoQuote) diagCocoQuote.innerHTML = '🐾 Paws and applause! You mastered all 11 motion graphs!';
-                        if (diagBody) diagBody.innerHTML = 'Outstanding physics mastery! Coco is doing zoomies in celebration!';
-                        showCocoBubble("🏆 All 11 Solved! You\'re a Physics Pro!", 'success', 6000);
-                    }
-                }, 2000);
+                // Reveal Next Motion button without moving automatically
+                btnCheck.style.display = 'none';
+                btnNextMotion.style.display = 'inline-flex';
+                
+                if (solvedLevels.size < 11) {
+                    let next = (currentLevel + 1) % 11;
+                    while (solvedLevels.has(next)) next = (next + 1) % 11;
+                    btnNextMotion.textContent = `Next Motion (#${next + 1}) ➔`;
+                } else {
+                    btnNextMotion.textContent = '🏆 All 11 Motions Mastered!';
+                }
             } else {
                 health = Math.max(0, health - 10);
                 updateLevelsUI();
@@ -1767,13 +1810,24 @@
                 const diag = getDiagnosticFeedback(currentSelectedLetter, targetLetter);
                 const randomError = cocoErrorQuotes[Math.floor(Math.random() * cocoErrorQuotes.length)];
                 
-                if (cocoAvatarBadge) cocoAvatarBadge.textContent = '🐶';
+                if (cocoAvatarBadge) cocoAvatarBadge.textContent = '💡';
                 diagnosticCard.className = 'diagnostic-card error';
                 if (diagCocoQuote) diagCocoQuote.innerHTML = randomError;
-                if (diagBody) diagBody.innerHTML = `<strong>${diag.title}</strong>: ${diag.body}`;
+                if (diagBody) diagBody.innerHTML = `<strong>${diag.title}:</strong> ${diag.body}`;
 
-                // Show speech bubble over Coco on the track
-                showCocoBubble("🐾 Ruh-roh! Check the hint below!", 'error', 3500);
+                // Show specific, actionable speech bubble over Coco
+                showCocoBubble(diag.bubbleHint, 'error', 4500);
+            }
+        });
+
+        // Next Motion button click handler (Manual Student Progression)
+        btnNextMotion.addEventListener('click', () => {
+            if (solvedLevels.size < 11) {
+                let next = (currentLevel + 1) % 11;
+                while (solvedLevels.has(next)) next = (next + 1) % 11;
+                loadLevel(next, false);
+            } else {
+                alert('🏆 Outstanding achievement! You have mastered all 11 Kinematic motion scenarios!');
             }
         });
 
