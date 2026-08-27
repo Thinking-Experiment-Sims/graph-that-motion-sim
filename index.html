@@ -424,6 +424,59 @@
             box-shadow: none;
         }
 
+        
+        /* Coco Speech Bubble & Feedback Styling */
+        .diagnostic-card {
+            padding: 1rem 1.25rem;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            display: none;
+            line-height: 1.5;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+            transition: all 0.2s ease;
+        }
+
+        .diagnostic-card.success {
+            display: flex;
+            gap: 0.85rem;
+            background-color: var(--success-bg);
+            color: #065f46;
+            border: 2px solid #34d399;
+        }
+
+        .diagnostic-card.error {
+            display: flex;
+            gap: 0.85rem;
+            background-color: var(--error-bg);
+            color: #991b1b;
+            border: 2px solid #f87171;
+        }
+
+        .coco-avatar-badge {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background-color: #ffffff;
+            border: 2px solid var(--primary-teal);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            flex-shrink: 0;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+
+        .coco-dialogue-content {
+            flex: 1;
+        }
+
+        .coco-witty-quote {
+            font-weight: 800;
+            font-size: 1.05rem;
+            margin-bottom: 0.35rem;
+            color: var(--text-dark);
+        }
+
         .diagnostic-card {
             padding: 0.85rem 1.1rem;
             border-radius: 6px;
@@ -725,8 +778,11 @@
                 <div class="check-answer-area">
                     <button class="btn-check" id="btnCheck" disabled>Check Answer</button>
                     <div class="diagnostic-card" id="diagnosticCard">
-                        <div class="diagnostic-title" id="diagTitle"></div>
-                        <div class="diagnostic-body" id="diagBody"></div>
+                        <div class="coco-avatar-badge" id="cocoAvatarBadge">🐶</div>
+                        <div class="coco-dialogue-content">
+                            <div class="coco-witty-quote" id="diagCocoQuote"></div>
+                            <div class="diagnostic-body" id="diagBody"></div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1291,6 +1347,90 @@
          CANVAS RENDERING: COCO THE BLACK PUG & STAGE
          ==========================================================================
         */
+        
+        // Coco Speech Bubble State
+        let cocoBubbleText = "";
+        let cocoBubbleType = "info"; // success, error, info
+        let cocoBubbleTimer = null;
+
+        const cocoSuccessPraise = [
+            "🐾 "Pawsome job! You nailed the slope! Here's a virtual treat! 🦴"",
+            "🐾 "Woof! That's a treat-worthy match! Coco approved! 🎾"",
+            "🐾 "Tail-wagging brilliance! You translated my zoomies into math! ⭐"",
+            "🐾 "Spot on! You know your velocity from your position! 🐶"",
+            "🐾 "Bark-tastic! You decoded my run like a physics champion! 🥓"",
+            "🐾 "High four! You're a certified Kinematics Master! 🐾""
+        ];
+
+        const cocoErrorQuotes = [
+            "🐾 "Ruh-roh! Barking up the wrong graph! Let's paws and try again..."",
+            "🐾 "Sniffing in the wrong direction! Replay my run and watch my pawprints! 🦴"",
+            "🐾 "Paws and reflect! Look closely at whether that's a Position or Velocity graph! 🐶"",
+            "🐾 "Not quite! My tail says check if I was speeding up or slowing down! 🐕"",
+            "🐾 "Hold your leash! Double-check the direction of my trot! 🐾""
+        ];
+
+        function showCocoBubble(text, type = 'info', duration = 3500) {
+            cocoBubbleText = text;
+            cocoBubbleType = type;
+            if (cocoBubbleTimer) clearTimeout(cocoBubbleTimer);
+            cocoBubbleTimer = setTimeout(() => {
+                cocoBubbleText = "";
+                renderStage();
+            }, duration);
+            renderStage();
+        }
+
+        function drawSpeechBubble(ctx, x, y, text, type) {
+            ctx.save();
+            ctx.font = 'bold 12px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+            const metrics = ctx.measureText(text);
+            const padX = 14;
+            const padY = 8;
+            const bw = metrics.width + padX * 2;
+            const bh = 28;
+            const bx = Math.max(10, Math.min(simCanvas.width - bw - 10, x - bw / 2));
+            const by = y - bh;
+
+            // Bubble background
+            ctx.fillStyle = '#ffffff';
+            ctx.strokeStyle = type === 'success' ? '#10b981' : (type === 'error' ? '#ef4444' : 'var(--primary-teal)');
+            ctx.lineWidth = 2;
+            ctx.shadowColor = 'rgba(0,0,0,0.15)';
+            ctx.shadowBlur = 8;
+            ctx.shadowOffsetY = 2;
+
+            // Rounded rect
+            ctx.beginPath();
+            const r = 8;
+            ctx.moveTo(bx + r, by);
+            ctx.lineTo(bx + bw - r, by);
+            ctx.arcTo(bx + bw, by, bx + bw, by + r, r);
+            ctx.lineTo(bx + bw, by + bh - r);
+            ctx.arcTo(bx + bw, by + bh, bx + bw - r, by + bh, r);
+            
+            // Pointer tail
+            const tailX = Math.max(bx + 15, Math.min(bx + bw - 15, x));
+            ctx.lineTo(tailX + 6, by + bh);
+            ctx.lineTo(x, by + bh + 8);
+            ctx.lineTo(tailX - 6, by + bh);
+
+            ctx.lineTo(bx + r, by + bh);
+            ctx.arcTo(bx, by + bh, bx, by + bh - r, r);
+            ctx.lineTo(bx, by + r);
+            ctx.arcTo(bx, by, bx + r, by, r);
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+
+            // Text
+            ctx.shadowColor = 'transparent';
+            ctx.fillStyle = '#1e293b';
+            ctx.textAlign = 'left';
+            ctx.fillText(text, bx + padX, by + 18);
+            ctx.restore();
+        }
+
         function renderStage() {
             const w = simCanvas.width;
             const h = simCanvas.height;
@@ -1345,9 +1485,14 @@
                 });
             }
 
-            // Draw Coco the Black Pug
+                        // Draw Coco the Black Pug
             let pugPx = margin + pug.x * pxPerMeter;
             drawCocoThePug(sctx, pugPx, trackY, pug.heading, pug.legPhase, Math.abs(pug.v) > 0.1);
+
+            // Draw Coco Speech Bubble if active
+            if (cocoBubbleText) {
+                drawSpeechBubble(sctx, pugPx, trackY - 82, cocoBubbleText, cocoBubbleType);
+            }
 
             // Live Velocity Vector (Amber)
             if (showVelocity && Math.abs(pug.v) > 0.1) {
