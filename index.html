@@ -1086,7 +1086,8 @@
         const emptyPrompt = document.getElementById('emptyPrompt');
         const btnCheck = document.getElementById('btnCheck');
         const diagnosticCard = document.getElementById('diagnosticCard');
-        const diagTitle = document.getElementById('diagTitle');
+        const cocoAvatarBadge = document.getElementById('cocoAvatarBadge');
+        const diagCocoQuote = document.getElementById('diagCocoQuote');
         const diagBody = document.getElementById('diagBody');
         const btnPlayPause = document.getElementById('btnPlayPause');
         const playIcon = document.getElementById('playIcon');
@@ -1736,9 +1737,15 @@
             if (currentSelectedLetter === targetLetter) {
                 solvedLevels.add(currentLevel);
                 diagnosticCard.className = 'diagnostic-card success';
-                diagTitle.innerHTML = '🎉 Good Dog, Coco! Correct Match!';
-                diagBody.innerHTML = `Awesome! Motion #${currentLevel + 1} corresponds to Graph ${currentSelectedLetter}: <em>${graphs[targetLetter].desc}</em>`;
                 
+                const randomPraise = cocoSuccessPraise[Math.floor(Math.random() * cocoSuccessPraise.length)];
+                if (cocoAvatarBadge) cocoAvatarBadge.textContent = '🎉';
+                if (diagCocoQuote) diagCocoQuote.innerHTML = randomPraise;
+                if (diagBody) diagBody.innerHTML = `<strong>Spot on!</strong> Motion #${currentLevel + 1} precisely corresponds to Graph ${currentSelectedLetter}: <em>${graphs[targetLetter].desc}</em>`;
+                
+                // Show speech bubble over Coco on the track
+                showCocoBubble("🦴 Pawsome! You got it!", 'success', 3500);
+
                 updateLevelsUI();
 
                 setTimeout(() => {
@@ -1747,18 +1754,26 @@
                         while (solvedLevels.has(next)) next = (next + 1) % 11;
                         loadLevel(next, false);
                     } else {
-                        diagTitle.innerHTML = '🏆 Mastered All 11 Adventures!';
-                        diagBody.innerHTML = 'Outstanding work! You have successfully mastered all 1D Kinematic graphs.';
+                        if (cocoAvatarBadge) cocoAvatarBadge.textContent = '🏆';
+                        if (diagCocoQuote) diagCocoQuote.innerHTML = '🐾 Paws and applause! You mastered all 11 motion graphs!';
+                        if (diagBody) diagBody.innerHTML = 'Outstanding physics mastery! Coco is doing zoomies in celebration!';
+                        showCocoBubble("🏆 All 11 Solved! You\'re a Physics Pro!", 'success', 6000);
                     }
-                }, 1400);
+                }, 2000);
             } else {
                 health = Math.max(0, health - 10);
                 updateLevelsUI();
 
                 const diag = getDiagnosticFeedback(currentSelectedLetter, targetLetter);
+                const randomError = cocoErrorQuotes[Math.floor(Math.random() * cocoErrorQuotes.length)];
+                
+                if (cocoAvatarBadge) cocoAvatarBadge.textContent = '🐶';
                 diagnosticCard.className = 'diagnostic-card error';
-                diagTitle.innerHTML = diag.title;
-                diagBody.innerHTML = diag.body;
+                if (diagCocoQuote) diagCocoQuote.innerHTML = randomError;
+                if (diagBody) diagBody.innerHTML = `<strong>${diag.title}</strong>: ${diag.body}`;
+
+                // Show speech bubble over Coco on the track
+                showCocoBubble("🐾 Ruh-roh! Check the hint below!", 'error', 3500);
             }
         });
 
