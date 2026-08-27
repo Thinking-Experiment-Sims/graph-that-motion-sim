@@ -140,11 +140,11 @@ def generate_student_handout(output_path):
         s.left_margin = Inches(0.75)
         s.right_margin = Inches(0.75)
         
-    format_doc_header(doc, "Graph That Motion — Student Investigation Handout", "The Thinking Experiment | PhysicsKit Kinematics Module")
+    format_doc_header(doc, "Graph That Motion — Coco's Kinematics Adventure", "The Thinking Experiment | PhysicsKit Kinematics Module")
     
     # Callout Box: Objectives
     add_callout(doc, "🎯 Learning Objectives", [
-        "• Translate between physical motion, ticker-tape motion maps, Position-Time (x-t), and Velocity-Time (v-t) graphs.",
+        "• Translate between physical motion, ticker-tape motion maps (pawprint dots), Position-Time (x-t), and Velocity-Time (v-t) graphs.",
         "• Apply slope rules: Slope of x-t = Velocity (v); Slope of v-t = Acceleration (a).",
         "• Recognize that flat horizontal lines mean constant value (at rest on x-t; steady speed on v-t).",
         "• Relate curved parabolic shapes on x-t graphs to changing velocity (non-zero acceleration)."
@@ -153,18 +153,18 @@ def generate_student_handout(output_path):
     add_heading_1(doc, "🧭 Motion Map Interpretation Key")
     p_map = doc.add_paragraph()
     p_map.paragraph_format.space_after = Pt(8)
-    p_map.add_run("A motion map drops an amber dot at fixed time intervals (Δt = 0.30 s):\n").font.color.rgb = RGB_DARK
+    p_map.add_run("Coco drops an amber pawprint dot at fixed time intervals (Δt = 0.30 s):\n").font.color.rgb = RGB_DARK
     p_map.add_run("• Constant Velocity: ").bold = True
     p_map.add_run("Dots are evenly spaced along the track.\n")
     p_map.add_run("• Speeding Up: ").bold = True
-    p_map.add_run("Dots spread progressively further apart.\n")
+    p_map.add_run("Dots spread progressively further apart as Coco bolts forward.\n")
     p_map.add_run("• Slowing Down: ").bold = True
-    p_map.add_run("Dots bunch progressively closer together.\n")
+    p_map.add_run("Dots bunch progressively closer together as Coco brakes.\n")
     p_map.add_run("• Stationary (At Rest): ").bold = True
-    p_map.add_run("Dots cluster and stack vertically at the same location.")
+    p_map.add_run("Dots cluster and stack vertically while Coco sits or sniffs the ground.")
     
     add_heading_1(doc, "📝 Part 1: Graph Matching Reference Matrix")
-    p_table_intro = doc.add_paragraph("Use the simulation to observe all 11 animations. Record the kinematics breakdown for each graph letter below:")
+    p_table_intro = doc.add_paragraph("Watch Coco's adventures in the simulation. Record the kinematics breakdown for each graph letter below:")
     p_table_intro.paragraph_format.space_after = Pt(6)
     
     # Table (12 rows, 5 cols)
@@ -172,7 +172,7 @@ def generate_student_handout(output_path):
     table.alignment = WD_TABLE_ALIGNMENT.CENTER
     table.autofit = False
     
-    headers = ["Graph", "Type", "Motion Description", "Dir (+ / -)", "Speed State"]
+    headers = ["Graph", "Type", "Coco's Motion Description", "Dir (+ / -)", "Speed State"]
     col_widths = [Inches(0.7), Inches(1.2), Inches(2.6), Inches(0.9), Inches(1.1)]
     
     # Format Header Row
@@ -190,17 +190,17 @@ def generate_student_handout(output_path):
         run.font.color.rgb = RGBColor(255, 255, 255)
         
     matrix_data = [
-        ("A", "Position-Time", "Starts from rest at origin, speeds up moving right.", "+", "Accelerating"),
-        ("B", "Velocity-Time", "Moves left at const speed → rest → speeds up right.", "- then +", "Multi-Stage"),
-        ("C", "Velocity-Time", "Moves left at constant steady speed throughout.", "-", "Constant"),
-        ("D", "Position-Time", "Moves left slowing down → rest → moves left const speed.", "-", "Multi-Stage"),
-        ("E", "Position-Time", "Moves right at constant steady speed from origin.", "+", "Constant"),
-        ("F", "Velocity-Time", "Speeds up left from rest → rest → moves left const speed.", "-", "Multi-Stage"),
-        ("G", "Position-Time", "Moves right const speed → rest → reverses left const speed.", "+ then -", "Turnaround"),
-        ("H", "Velocity-Time", "Starts fast right, slows down linearly to a complete stop.", "+", "Decelerating"),
-        ("I", "Position-Time", "Starts from rest at far right, speeds up moving left.", "-", "Accelerating"),
-        ("J", "Position-Time", "Moves right const speed → rest → speeds up moving right.", "+", "Multi-Stage"),
-        ("K", "Position-Time", "Starts moving left fast, slows down with steady +a to stop.", "-", "Decelerating")
+        ("A", "Position-Time", "Coco starts from rest at left, accelerating right.", "+", "Accelerating"),
+        ("B", "Velocity-Time", "Trots left at const speed → pauses to sniff → accelerates right.", "- then +", "Multi-Stage"),
+        ("C", "Velocity-Time", "Trots steadily to the left at constant negative speed.", "-", "Constant"),
+        ("D", "Position-Time", "Trots left slowing down → pauses to rest → continues trotting left.", "-", "Multi-Stage"),
+        ("E", "Position-Time", "Trots smoothly right at constant speed from origin.", "+", "Constant"),
+        ("F", "Velocity-Time", "Sprints left from rest → stops abruptly → walks left at const pace.", "-", "Multi-Stage"),
+        ("G", "Position-Time", "Runs right for a ball → grabs it (rest) → trots back left.", "+ then -", "Turnaround"),
+        ("H", "Velocity-Time", "Starts in a fast zoomie right, steadily braking to a stop.", "+", "Decelerating"),
+        ("I", "Position-Time", "Spots squirrel left, accelerating from rest with increasing speed left.", "-", "Accelerating"),
+        ("J", "Position-Time", "Walks right at steady pace → pauses → bolts forward in sprint.", "+", "Multi-Stage"),
+        ("K", "Position-Time", "Dashes left fast, skidding with positive acceleration to a stop.", "-", "Decelerating")
     ]
     
     for row_idx, row_data in enumerate(matrix_data, start=1):
@@ -290,8 +290,8 @@ def generate_teacher_guide(output_path):
     format_doc_header(doc, "Graph That Motion — Teacher Guide & Lesson Plan", "The Thinking Experiment | PhysicsKit Kinematics Module")
     
     add_callout(doc, "📋 Module Overview & Pedagogical Targets", [
-        "This interactive module directly addresses the 4 most persistent misconceptions in 1D kinematics:",
-        "1. Graph-as-Picture Fallacy: Students mistaking graphical peaks/troughs for physical hills or tracks.",
+        "This interactive module features Coco the Black Pug to target the 4 most persistent misconceptions in 1D kinematics:",
+        "1. Graph-as-Picture Fallacy: Students mistaking graphical peaks/troughs for physical hills.",
         "2. Position vs. Velocity Confusion: Assuming high vertical position implies high speed.",
         "3. Slope vs. Height Confusion: Overlooking that steepness represents velocity (x-t) or acceleration (v-t).",
         "4. Sign of Acceleration Confusion: Believing negative acceleration always means 'slowing down'."
@@ -303,7 +303,7 @@ def generate_teacher_guide(output_path):
     table.alignment = WD_TABLE_ALIGNMENT.CENTER
     table.autofit = False
     
-    headers = ["Graph", "Type", "Exact Kinematic Motion Breakdown", "Common Student Misconceptions"]
+    headers = ["Graph", "Type", "Coco's Kinematic Motion Breakdown", "Common Student Misconceptions"]
     col_widths = [Inches(0.7), Inches(1.1), Inches(2.6), Inches(2.1)]
     
     hdr_cells = table.rows[0].cells
@@ -320,17 +320,17 @@ def generate_teacher_guide(output_path):
         run.font.color.rgb = RGBColor(255, 255, 255)
         
     ans_data = [
-        ("A", "x-t", "x₀ = 0 m, v₀ = 0 m/s, a = +2.7 m/s². Parabolic curve getting steeper.", "Mistaking straight linear line for speeding up."),
-        ("B", "v-t", "v = -4.0 m/s (1.4s) → v = 0 m/s (1.2s) → speeds up to +5.1 m/s (1.6s).", "Confusing v = 0 axis line with 'at the origin'."),
-        ("C", "v-t", "Constant horizontal line at v = -4.2 m/s below 0-axis for 3.8s.", "Confusing negative velocity with deceleration."),
-        ("D", "x-t", "Starts x = 18.5m, slows down moving left to stop → rest → cruises left.", "Thinking curve flattening means moving right."),
-        ("E", "x-t", "Starts x = 0m, straight line upward with steady slope v = +4.2 m/s.", "Baseline positive constant velocity reference."),
-        ("F", "v-t", "v slopes 0 to -5.4 m/s → rest (v=0) → cruises at v = -4.5 m/s.", "Missing that negative slope on v-t is negative acceleration."),
-        ("G", "x-t", "Moves right const speed → stops at rest → moves left const speed back.", "Thinking the car drove over a triangular hill."),
-        ("H", "v-t", "Starts v = +8.5 m/s, slopes linearly down to v = 0 m/s (steady -a).", "Confusing downward slope on v-t with moving backwards."),
-        ("I", "x-t", "Starts x = 18.5m from rest, curves down with increasing steepness.", "Confusing concave down curve with slowing down."),
-        ("J", "x-t", "Cruises right const speed → stops at rest → accelerates right from rest.", "Distinguishing linear segment from parabolic curve."),
-        ("K", "x-t", "Starts fast left (v₀ = -8.5 m/s), curves up to flat horizontal at stop.", "Recognizing that v < 0 and a > 0 produces deceleration.")
+        ("A", "x-t", "Coco starts from rest (x₀=0, v₀=0, a=+2.7 m/s²). Parabolic curve steepening.", "Mistaking straight linear line for speeding up."),
+        ("B", "v-t", "Coco trots left (v=-4 m/s) → sniffs at rest (v=0) → accelerates right.", "Confusing v = 0 axis line with 'at the origin'."),
+        ("C", "v-t", "Coco trots left at constant steady velocity v = -4.2 m/s for 3.8s.", "Confusing negative velocity with deceleration."),
+        ("D", "x-t", "Coco slows down moving left to stop → pauses → continues trotting left.", "Thinking curve flattening means moving right."),
+        ("E", "x-t", "Coco trots right with steady constant velocity v = +4.2 m/s from origin.", "Baseline positive constant velocity reference."),
+        ("F", "v-t", "Coco accelerates left (0 to -5.4 m/s) → pauses (v=0) → cruises left.", "Missing that negative slope on v-t is negative acceleration."),
+        ("G", "x-t", "Coco runs right for ball → pauses to grab it → trots back left (peak).", "Thinking Coco ran up a triangular hill."),
+        ("H", "v-t", "Coco starts in zoomie right (v=+8.5 m/s), braking linearly to stop.", "Confusing downward slope on v-t with moving backwards."),
+        ("I", "x-t", "Coco spots squirrel, starts from rest at right, accelerating left.", "Confusing concave down curve with slowing down."),
+        ("J", "x-t", "Coco walks right at const speed → pauses → bolts right in a sprint.", "Distinguishing linear segment from parabolic curve."),
+        ("K", "x-t", "Coco dashes left fast (v₀=-8.5 m/s), skidding with +a to a stop.", "Recognizing that v < 0 and a > 0 produces deceleration.")
     ]
     
     for row_idx, row_data in enumerate(ans_data, start=1):
