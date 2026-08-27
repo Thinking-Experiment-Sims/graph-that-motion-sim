@@ -117,6 +117,146 @@
             box-shadow: 0 2px 6px rgba(0,0,0,0.15);
         }
 
+        
+        /* Student Guidance Workflow Banner */
+        .instructions-banner {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr auto 1fr;
+            align-items: center;
+            gap: 0.85rem;
+            background: #ffffff;
+            border: 2px solid var(--primary-teal);
+            border-radius: 12px;
+            padding: 1rem 1.4rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 12px rgba(15, 126, 155, 0.08);
+        }
+
+        .inst-step {
+            display: flex;
+            align-items: center;
+            gap: 0.85rem;
+        }
+
+        .step-num {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: var(--primary-teal);
+            color: #ffffff;
+            font-size: 1.15rem;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            box-shadow: 0 2px 6px rgba(15, 126, 155, 0.3);
+        }
+
+        .step-text {
+            display: flex;
+            flex-direction: column;
+            gap: 0.15rem;
+        }
+
+        .step-text strong {
+            font-size: 0.95rem;
+            color: var(--text-dark);
+            font-weight: 800;
+        }
+
+        .step-text span {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            line-height: 1.35;
+        }
+
+        .inst-arrow {
+            color: var(--accent-amber);
+            font-size: 1.4rem;
+            font-weight: 900;
+            user-select: none;
+        }
+
+        @media (max-width: 900px) {
+            .instructions-banner {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            .inst-arrow {
+                display: none;
+            }
+        }
+
+        /* Collapsible Physics Reference Accordion */
+        .physics-guide-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--primary-teal-light);
+            border: 1.5px solid rgba(15, 126, 155, 0.25);
+            border-radius: 8px;
+            padding: 0.6rem 1rem;
+            margin-bottom: 1.25rem;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: var(--primary-teal);
+            transition: all 0.15s ease;
+        }
+
+        .physics-guide-toggle:hover {
+            background: #d4ecf2;
+        }
+
+        .physics-guide-content {
+            display: none;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            background: #ffffff;
+            border: 1.5px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .physics-guide-content.open {
+            display: grid;
+        }
+
+        .guide-box {
+            background: var(--bg-page);
+            border-radius: 6px;
+            padding: 0.75rem;
+            border-left: 4px solid var(--primary-teal);
+        }
+
+        .guide-box.amber {
+            border-left-color: var(--accent-amber);
+        }
+
+        .guide-box h4 {
+            font-size: 0.85rem;
+            font-weight: 800;
+            margin-bottom: 0.35rem;
+            color: var(--text-dark);
+        }
+
+        .guide-box ul {
+            margin: 0;
+            padding-left: 1.1rem;
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            line-height: 1.45;
+        }
+
+        .deck-subtext {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            margin-top: 0.2rem;
+            line-height: 1.35;
+        }
+
         /* Main Workspace Container */
         .workspace {
             max-width: 1680px;
@@ -688,6 +828,71 @@
         
         <!-- Tab 1: Challenge Lab -->
         <div id="lab-tab" class="tab-panel active">
+            
+            <!-- 3-Step Student Guidance Workflow Bar -->
+            <div class="instructions-banner">
+                <div class="inst-step">
+                    <div class="step-num">1</div>
+                    <div class="step-text">
+                        <strong>Watch Coco's Motion</strong>
+                        <span>Click <b>▶ Start Motion</b> on the left to observe Coco's speed, direction & pawprint trail.</span>
+                    </div>
+                </div>
+                <div class="inst-arrow">➔</div>
+                <div class="inst-step">
+                    <div class="step-num">2</div>
+                    <div class="step-text">
+                        <strong>Inspect Graph Cards</strong>
+                        <span>Click cards <b>#1 – #10</b> on the right to preview their Position (<span class="math-expr">x-t</span>) or Velocity (<span class="math-expr">v-t</span>) graphs.</span>
+                    </div>
+                </div>
+                <div class="inst-arrow">➔</div>
+                <div class="inst-step">
+                    <div class="step-num">3</div>
+                    <div class="step-text">
+                        <strong>Confirm Your Match</strong>
+                        <span>When you find the graph that matches Coco's physical run, click <b>Confirm & Check Match</b>!</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Physics & Motion Map Guidance Drawer -->
+            <div class="physics-guide-toggle" id="btnToggleGuide">
+                <span>📖 <strong>Quick Physics Guidance & Motion Map Key</strong> (Click to Expand / Collapse)</span>
+                <span id="guideArrow">▼</span>
+            </div>
+            <div class="physics-guide-content" id="guideContent">
+                <div class="guide-box">
+                    <h4>🐾 Pawprint Motion Map</h4>
+                    <ul>
+                        <li><strong>Even Spacing:</strong> Moving at constant speed.</li>
+                        <li><strong>Spreading Apart:</strong> Speeding up (accelerating).</li>
+                        <li><strong>Bunching Close:</strong> Slowing down (braking).</li>
+                        <li><strong>Vertical Stack:</strong> Stationary at rest (<span class="math-expr">v = 0</span>).</li>
+                    </ul>
+                </div>
+                <div class="guide-box amber">
+                    <h4>📈 Position-Time (<span class="math-expr">x-t</span>) Graphs</h4>
+                    <ul>
+                        <li><strong>Slope = Velocity:</strong> Steeper line = Faster speed.</li>
+                        <li><strong>Positive Slope (/):</strong> Moving Right (+).</li>
+                        <li><strong>Negative Slope (\):</strong> Moving Left (-).</li>
+                        <li><strong>Flat Horizontal Line:</strong> Stopped at rest (<span class="math-expr">v = 0</span>).</li>
+                        <li><strong>Curved Parabola:</strong> Changing speed (acceleration).</li>
+                    </ul>
+                </div>
+                <div class="guide-box">
+                    <h4>📉 Velocity-Time (<span class="math-expr">v-t</span>) Graphs</h4>
+                    <ul>
+                        <li><strong>Above Zero Line:</strong> Moving Right (+).</li>
+                        <li><strong>Below Zero Line:</strong> Moving Left (-).</li>
+                        <li><strong>On Zero Axis:</strong> Stopped at rest (<span class="math-expr">v = 0</span>).</li>
+                        <li><strong>Flat Horizontal Line:</strong> Constant velocity (<span class="math-expr">a = 0</span>).</li>
+                        <li><strong>Slanted Line:</strong> Accelerating (Slope = Acceleration).</li>
+                    </ul>
+                </div>
+            </div>
+
             <div class="lab-layout">
                 
                 <!-- Left Column: Arena & Video Scrubber -->
@@ -769,7 +974,10 @@
                 <!-- Right Column: Interactive Matching Deck -->
                 <div class="panel-card">
                     <div class="deck-header">
-                        <h3>Match Coco's Kinematic Graph</h3>
+                        <div>
+                            <h3>🎯 Select the Matching Graph Card</h3>
+                            <p class="deck-subtext">Click any card below to preview its curve in the graph window:</p>
+                        </div>
                         <div class="progress-pill" id="scoreBadge">Solved: 0 / 10</div>
                     </div>
 
@@ -791,7 +999,7 @@
 
                         <canvas id="graphCanvas" width="480" height="300" style="display: none;"></canvas>
                         <div class="empty-inspector" id="emptyPrompt">
-                            Select any graph card above to inspect its kinematic curves.
+                            👆 <strong>Click any Graph Card above</strong> to preview its Position or Velocity curve and see if it matches Coco's run.
                         </div>
                     </div>
 
@@ -1196,6 +1404,15 @@
         const timeReadout = document.getElementById('timeReadout');
 
         function initApp() {
+            const btnGuide = document.getElementById('btnToggleGuide');
+            const guideContent = document.getElementById('guideContent');
+            const guideArrow = document.getElementById('guideArrow');
+            if (btnGuide) {
+                btnGuide.addEventListener('click', () => {
+                    const isOpen = guideContent.classList.toggle('open');
+                    guideArrow.textContent = isOpen ? '▲' : '▼';
+                });
+            }
             buildCardsGallery();
             buildStepper();
             setupTabs();
