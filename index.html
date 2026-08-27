@@ -712,7 +712,7 @@
 
                 <!-- Simulation Track Canvas -->
                 <div class="track-box">
-                    <canvas id="simCanvas" width="850" height="185"></canvas>
+                    <canvas id="simCanvas" width="850" height="215"></canvas>
                 </div>
 
                 <!-- Playback Toolbar: User in control -->
@@ -1076,7 +1076,7 @@
         let motionDots = [];
         const dotInterval = 0.30;
         const trackLength = 20;
-        const trackY = 125;
+        const trackY = 155;
         const pug = { x: 0, v: 0, a: 0, heading: 1, legPhase: 0 };
 
         // DOM elements
@@ -1388,18 +1388,17 @@
             const metrics = ctx.measureText(text);
             const padX = 14;
             const bw = metrics.width + padX * 2;
-            const bh = 30;
-            const bx = Math.max(10, Math.min(simCanvas.width - bw - 10, x - bw / 2));
-            // Ensure bubble never overflows the top border
-            const by = Math.max(8, y - bh);
+            const bh = 32;
+            const bx = Math.max(12, Math.min(simCanvas.width - bw - 12, x - bw / 2));
+            const by = Math.max(6, y - bh);
 
-            // Bubble background
+            // Bubble background with high contrast drop shadow
             ctx.fillStyle = '#ffffff';
             ctx.strokeStyle = type === 'success' ? '#10b981' : (type === 'error' ? '#ef4444' : '#0f7e9b');
             ctx.lineWidth = 2.5;
-            ctx.shadowColor = 'rgba(0,0,0,0.18)';
-            ctx.shadowBlur = 8;
-            ctx.shadowOffsetY = 3;
+            ctx.shadowColor = 'rgba(0,0,0,0.22)';
+            ctx.shadowBlur = 10;
+            ctx.shadowOffsetY = 4;
 
             // Rounded rect
             ctx.beginPath();
@@ -1410,11 +1409,11 @@
             ctx.lineTo(bx + bw, by + bh - r);
             ctx.arcTo(bx + bw, by + bh, bx + bw - r, by + bh, r);
             
-            // Pointer tail
-            const tailX = Math.max(bx + 20, Math.min(bx + bw - 20, x));
-            ctx.lineTo(tailX + 7, by + bh);
+            // Pointer tail pointing directly down toward Coco
+            const tailX = Math.max(bx + 16, Math.min(bx + bw - 16, x));
+            ctx.lineTo(tailX + 6, by + bh);
             ctx.lineTo(x, by + bh + 8);
-            ctx.lineTo(tailX - 7, by + bh);
+            ctx.lineTo(tailX - 6, by + bh);
 
             ctx.lineTo(bx + r, by + bh);
             ctx.arcTo(bx, by + bh, bx, by + bh - r, r);
@@ -1491,21 +1490,21 @@
             let pugPx = margin + pug.x * pxPerMeter;
             drawCocoThePug(sctx, pugPx, trackY, pug.heading, pug.legPhase, Math.abs(pug.v) > 0.1);
 
-            // Draw Coco Speech Bubble if active (above Coco's head with ample clearance)
-            if (cocoBubbleText) {
-                drawSpeechBubble(sctx, pugPx, trackY - 84, cocoBubbleText, cocoBubbleType);
-            }
-
-            // Live Velocity Vector (Amber)
+            // Live Velocity Vector (Amber, just above Coco's head)
             if (showVelocity && Math.abs(pug.v) > 0.1) {
                 let vLen = pug.v * 7;
-                drawVectorArrow(sctx, pugPx, trackY - 80, pugPx + vLen, trackY - 80, "#d67b19", 3.5, "v");
+                drawVectorArrow(sctx, pugPx, trackY - 82, pugPx + vLen, trackY - 82, "#d67b19", 3.5, "v");
             }
 
-            // Live Acceleration Vector (Teal)
+            // Live Acceleration Vector (Teal, stacked neatly above velocity)
             if (showAcceleration && Math.abs(pug.a) > 0.1) {
                 let aLen = pug.a * 14;
-                drawVectorArrow(sctx, pugPx, trackY - 96, pugPx + aLen, trackY - 96, "#0f7e9b", 3.5, "a");
+                drawVectorArrow(sctx, pugPx, trackY - 100, pugPx + aLen, trackY - 100, "#0f7e9b", 3.5, "a");
+            }
+
+            // Draw Coco Speech Bubble if active (floating at top tier, completely above all vectors)
+            if (cocoBubbleText) {
+                drawSpeechBubble(sctx, pugPx, trackY - 116, cocoBubbleText, cocoBubbleType);
             }
         }
 
