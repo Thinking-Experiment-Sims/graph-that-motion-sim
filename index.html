@@ -1208,10 +1208,10 @@
         function buildCardsGallery() {
             cardsGallery.innerHTML = '';
             missionKeys.forEach(k => {
-                const s = scenarios[k];
+                const s = activeScenarios[k];
                 const btn = document.createElement('div');
                 btn.className = 'graph-card-btn';
-                btn.id = `card-btn-${k.replace('#', '')}`;
+                btn.id = `card-btn-${k.replace('#', '').replace('-', '')}`;
                 btn.innerHTML = `
                     <span class="card-id">${k}</span>
                     <span class="card-tag">${s.type === 'position' ? 'x - t' : 'v - t'}</span>
@@ -2071,7 +2071,7 @@
             document.getElementById('btnApplySandbox').addEventListener('click', () => {
                 const scen = getSandboxScenario();
                 missionOrder[currentMissionIdx] = '#CUSTOM';
-                scenarios['#CUSTOM'] = {
+                activeScenarios['#CUSTOM'] = {
                     id: '#CUSTOM',
                     title: "Coco's Custom Run",
                     type: 'position',
@@ -2080,7 +2080,7 @@
                     stages: scen.stages,
                     desc: 'Custom user-designed kinematic scenario for Coco.'
                 };
-                computeKinematicStages(scenarios['#CUSTOM']);
+                computeKinematicStages(activeScenarios['#CUSTOM']);
                 document.querySelector('[data-tab="lab-tab"]').click();
                 loadMission(currentMissionIdx, true);
             });
