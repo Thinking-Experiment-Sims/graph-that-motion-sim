@@ -117,6 +117,19 @@
             text-transform: uppercase;
         }
 
+        .header-title .lab-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--accent-amber-dark);
+            background: var(--accent-amber-light);
+            border: 1px solid #fedbb3;
+            padding: 0.25rem 0.65rem;
+            border-radius: 6px;
+        }
+
         .header-title h1 {
             font-size: clamp(1.4rem, 2vw, 1.85rem);
             font-weight: 700;
@@ -855,7 +868,10 @@
     <header>
         <div class="header-content">
             <div class="header-title">
-                <a href="https://thinking-experiment-sims.github.io/interactive-physics/" class="brand-badge" style="text-decoration: none;" title="Go to Physics Simulations Hub">← The Thinking Experiment</a>
+                <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 0.35rem;">
+                    <a href="https://thinking-experiment-sims.github.io/interactive-physics/" class="brand-badge" style="text-decoration: none;" title="Return to Physics Simulations Hub">← The Thinking Experiment</a>
+                    <span class="lab-badge">📐 Physics Lab Activity</span>
+                </div>
                 <h1>Kinematics Studio: Coco's Motion Lab</h1>
             </div>
             <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center;">
@@ -865,7 +881,6 @@
                     <button class="tab-btn" data-tab="sketch-tab">✏️ Prediction Sketch</button>
                     <button class="tab-btn" data-tab="builder-tab">🛠️ Sandbox</button>
                 </nav>
-                <a href="https://thinking-experiment-sims.github.io/interactive-physics/" class="tab-btn" style="background: #ffffff; color: var(--text-dark); border: 1px solid var(--border-color); text-decoration: none; display: inline-flex; align-items: center; gap: 0.35rem; font-weight: 700;">🏠 Hub</a>
             </div>
         </div>
     </header>
